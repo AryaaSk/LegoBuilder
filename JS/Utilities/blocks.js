@@ -23,11 +23,6 @@ class Block {
         this.gridModel = []; //a list of vectors from the original point, where the block will fill up
         this.blockModel = new Shape(); //when creating the model, make sure it extends into the x - z direction, do not center it on any axis, and also make each cell 100 * 100, and 150 wide, then we can scale
         this.id = Block.generateID();
-    }
-    addToBlocks() {
-        //before we add, scale the block, in the editor each cell is 100 * 150 * 100
-        this.blockModel.scale = (Block.cellSize / 100);
-        this.blockModel.updateMatrices();
         blocks[this.id] = this;
     }
     removeBlock(grid) {
@@ -45,14 +40,13 @@ class Block {
         return String(newID);
     }
 }
-Block.cellSize = 10;
-Block.cellHeightRatio = 1.5; //multiply cellSize by 1.5 to get cellHeight
+Block.cellSize = 100;
+Block.cellHeight = 150;
 class SingleBlock extends Block {
     constructor() {
         super();
         this.gridModel = [{ layer: 0, row: 0, column: 0 }];
         this.blockModel = new SingleBlockModel();
         this.blockModel.showOutline = true;
-        this.addToBlocks();
     }
 }

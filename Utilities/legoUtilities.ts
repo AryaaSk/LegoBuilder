@@ -59,24 +59,24 @@ class LegoGrid {
     }
 
     blockModels: Shape[] = [];
-    generateBlockModels = () => {
+    generateBlockModels = () => { //need to rewrite, each cell is a fixed size (set in the shapebuilder), the cellSize and cellHeight reflect that
         this.blockModels = [];
     
         for (let layer = 0; layer != this.data.length; layer += 1) {
             for (let row = 0; row != this.data[layer].length; row += 1) {
                 for (let column = 0; column != this.data[layer][row].length; column += 1) {
 
-                    const newBlockID = this.data[layer][row][column];
-                    if (newBlockID == "-1") { continue; }
+                    const currentBlockID = this.data[layer][row][column];
+                    if (currentBlockID == "-1") { continue; }
 
-                    const newBlock = blocks[newBlockID].blockModel;
+                    const currentBlock = blocks[currentBlockID].blockModel;
                     //calculate the position of the newBlock in the 3D world
 
-                    newBlock.position.x = (column - this.numOfColumns / 2) * Block.cellSize;
-                    newBlock.position.y = (layer) * (Block.cellSize * Block.cellHeightRatio);
-                    newBlock.position.z = (row - this.numOfRows / 2) * Block.cellSize;
+                    currentBlock.position.x = (column - this.numOfColumns / 2) * Block.cellSize;
+                    currentBlock.position.y = (layer) * (Block.cellHeight);
+                    currentBlock.position.z = (row - this.numOfRows / 2) * Block.cellSize;
 
-                    this.blockModels.push(newBlock);
+                    this.blockModels.push(currentBlock);
                 }
             }
         }

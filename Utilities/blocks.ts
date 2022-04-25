@@ -34,22 +34,16 @@ class Block {
 
     constructor() {
         this.id = Block.generateID();
-    }
-
-    addToBlocks() {
-        //before we add, scale the block, in the editor each cell is 100 * 150 * 100
-        this.blockModel.scale = (Block.cellSize / 100);
-        this.blockModel.updateMatrices();
-
         blocks[this.id] = this;
     }
+
     removeBlock(grid: LegoGrid) {
         delete blocks[this.id];
         grid.cleanGrid();
     }
 
-    static cellSize = 10;
-    static cellHeightRatio = 1.5; //multiply cellSize by 1.5 to get cellHeight
+    static cellSize = 100;
+    static cellHeight = 150;
 
     static generateID() {
         //generate new identifier
@@ -70,7 +64,5 @@ class SingleBlock extends Block {
         this.gridModel = [{ layer: 0, row: 0, column: 0 }];
         this.blockModel = new SingleBlockModel();
         this.blockModel.showOutline = true;
-
-        this.addToBlocks();
     }
 }
