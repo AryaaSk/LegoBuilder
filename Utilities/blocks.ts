@@ -84,6 +84,7 @@ class SingleBlock extends Block {
         this.gridModel = [{ layer: 0, row: 0, column: 0 }];
         this.blockModel = new SingleBlockModel();
         this.blockModel.showOutline = true;
+        this.blockModel.name = this.id;
     }
 }
 class DoubleBlock extends Block {
@@ -93,5 +94,6 @@ class DoubleBlock extends Block {
         this.gridModel = [{ layer: 0, row: 0, column: 0 }, { layer: 0, row: 0, column: 1 }];
         this.blockModel = new DoubleBlockModel();
         this.blockModel.showOutline = true;
+        this.blockModel.name = this.id;
     }
 }
