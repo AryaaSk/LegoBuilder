@@ -82,42 +82,48 @@ class LegoGrid {
     private generateVirtualCenters(screenObjects: { object: Shape, screenPoints: matrix, center: number[]}[], clickableSurfaces: { column: number, layer: number, row: number}[]) {
         const clickableSurfaceCenters: { position: { column: number, layer: number, row: number }, surfaceCenter: number[] }[] = [];
 
-        //if the layer is -1, it just means that it is on the board, which also means that it won't have an id (-1)
+        //find distances between the width, height and depth of board, to interpolate values
         const boardPoints = screenObjects.find(obj => {
             return obj.object.name == "board"
         })!
 
-        //create a grid of [row][column], of board centers,
-        const corner1 = boardPoints.screenPoints.getColumn(3);
-        const corner2 = boardPoints.screenPoints.getColumn(2);
-        const corner3 = boardPoints.screenPoints.getColumn(7);
-
-        const distanceBetween2D = (p1: number[], p2: number[]) => { return Math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2); }
-        const width = distanceBetween2D(corner1, corner2);
-        const depth = distanceBetween2D(corner1, corner3);
+        const baseCorner = boardPoints.screenPoints.getColumn(0);
+        const corner2 = boardPoints.screenPoints.getColumn(1);
+        const corner3 = boardPoints.screenPoints.getColumn(3);  
+        const corner4 = boardPoints.screenPoints.getColumn(4);
 
         //interpolate through these values when they come up in the clickable surfaces
-        const widthInterpolation = width / this.numOfColumns;
-        const depthInterpolation = depth / this.numOfRows;
+        const widthInterpolationVector = [corner2[0] - baseCorner[0], corner2[1] - baseCorner[1]]
+        widthInterpolationVector[0] /= this.numOfColumns;
+        widthInterpolationVector[1] /= this.numOfColumns;
+        
+        const heightInterpolationVector = [corner3[0] - baseCorner[0], corner3[1] - baseCorner[1]]
+        heightInterpolationVector[0] /= this.numOfLayers;
+        heightInterpolationVector[1] /= this.numOfLayers;
+
+        const depthInterpolationVector = [corner4[0] - baseCorner[0], corner4[1] - baseCorner[1]]
+        depthInterpolationVector[0] /= this.numOfRows;
+        depthInterpolationVector[1] /= this.numOfRows;
 
         for (const surface of clickableSurfaces) {
-            if (surface.layer == -1) {
-                const boardFaceBottomLeftCorner = { x: widthInterpolation * surface.column, y: depth * surface.row };
-                const boardFaceCenter = { x: boardFaceBottomLeftCorner.x + (widthInterpolation / 2), y: boardFaceBottomLeftCorner.y + (depthInterpolation / 2) }
-                clickableSurfaceCenters.push( { position: { column: surface.column, layer: surface.layer, row: surface.row }, surfaceCenter: [boardFaceCenter.x, boardFaceCenter.y] } )
+            const column = surface.column;
+            const layer = surface.layer + 1; //since the first layer (the board) starts at -1
+            const row = surface.row;
 
-            } else {
-                const id = this.data[surface.layer][surface.row][surface.column];
-                //find top surface of object based on y-position, then just find the center of that face
+            const faceCenterPoint = [baseCorner[0], baseCorner[1]];
+            faceCenterPoint[0] += (column * widthInterpolationVector[0]) + (widthInterpolationVector[0] * 0.5);
+            faceCenterPoint[1] += (column * widthInterpolationVector[1]) + (widthInterpolationVector[1] * 0.5);
 
-                const object = screenObjects.find(obj => {
-                    return obj.object.name == id
-                })!
+            faceCenterPoint[0] += (layer * heightInterpolationVector[0]); //you don't need to center the height
+            faceCenterPoint[1] += (layer * heightInterpolationVector[1]);
 
+            faceCenterPoint[0] += (row * depthInterpolationVector[0]) + (depthInterpolationVector[0] * 0.5);
+            faceCenterPoint[1] += (row * depthInterpolationVector[1]) + (depthInterpolationVector[1] * 0.5);
 
-
-            }
+            clickableSurfaceCenters.push( { position: { column: column, layer: layer, row: row }, surfaceCenter: faceCenterPoint } );
         }
+
+        return clickableSurfaceCenters;
     }
 
     findPositionClicked(screenpoints: { object: Shape, screenPoints: matrix, center: number[]}[], clicked: { x: number, y: number }) {
@@ -139,7 +145,13 @@ class LegoGrid {
         }
 
         //now we generate the virtual faces for the surfaces
-        this.generateVirtualCenters(screenObjects, clickableSurfaces);
+        const clickableSurfaceCenters = this.generateVirtualCenters(screenObjects, clickableSurfaces);
+        for (const surface of clickableSurfaceCenters) {
+            const point = surface.surfaceCenter;
+            plotPoint(point, "#00ff00");
+        }
+        console.log("Green points represent the virtual face centers");
+        console.log("Now just need to find the closest point, where the mouse was clicked");
     }
 
     constructor() { }
