@@ -128,12 +128,20 @@ class LegoGrid {
             }
         }
         //now we generate the virtual faces for the surfaces
-        const clickableSurfaceCenters = this.generateVirtualCenters(screenObjects, clickableSurfaces);
-        for (const surface of clickableSurfaceCenters) {
-            const point = surface.surfaceCenter;
-            plotPoint(point, "#00ff00");
+        const clickableSurfaceCenters = this.generateVirtualCenters(screenpoints, clickableSurfaces);
+        //find the point which is closest to the mouse click
+        const distanceBetween2D = (p1, p2) => { return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2); };
+        let closestSurfaceIndex = 0;
+        for (let i = 0; i != clickableSurfaceCenters.length; i += 1) {
+            if (distanceBetween2D(clicked, clickableSurfaceCenters[i].surfaceCenter) < distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter)) {
+                closestSurfaceIndex = i;
+            }
         }
-        console.log("Green points represent the virtual face centers");
-        console.log("Now just need to find the closest point, where the mouse was clicked");
+        if (distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) {
+            return undefined;
+        }
+        else {
+            return clickableSurfaceCenters[closestSurfaceIndex].position;
+        }
     }
 }

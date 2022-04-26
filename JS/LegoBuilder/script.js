@@ -20,17 +20,22 @@ const singleBlock = new SingleBlock();
 grid.placeBlock(singleBlock, { layer: 0, row: 0, column: 0 });
 const doubleBlock = new DoubleBlock();
 grid.placeBlock(doubleBlock, { layer: 0, row: 2, column: 1 });
+const doubleBlock2 = new DoubleBlock();
+grid.placeBlock(doubleBlock2, { layer: 1, row: 2, column: 2 });
 let screenObjects = [];
 setInterval(() => {
     clearCanvas();
     camera.renderGrid();
     screenObjects = camera.render([legoBoard]);
     screenObjects.concat(camera.render(grid.blockModels));
-    grid.findPositionClicked(screenObjects, { x: 0, y: 0 });
+    //grid.findPositionClicked(screenObjects, [-10000, -10000] )
 }, 16);
-/*
-screenObjects = camera.render([legoBoard]);
-screenObjects.concat(camera.render(grid.blockModels));
-*/
+console.log("Green points represent the virtual face centers");
+console.log("Now just need to find the closest point, where the mouse was clicked");
 document.onclick = ($e) => {
+    const newBlockPosition = grid.findPositionClicked(screenObjects, [$e.clientX - canvasWidth / 2, canvasHeight / 2 - $e.clientY]);
+    if (newBlockPosition == undefined) {
+        return;
+    }
+    console.log(newBlockPosition);
 };
