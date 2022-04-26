@@ -37,5 +37,6 @@ document.onclick = ($e) => {
     if (newBlockPosition == undefined) {
         return;
     }
-    console.log(newBlockPosition);
+    const newSingleBlock = new DoubleBlock(); //double block is a bit weird, probably a bug, single block works fine
+    grid.placeBlock(newSingleBlock, newBlockPosition);
 };

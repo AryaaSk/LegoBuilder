@@ -46,5 +46,7 @@ console.log("Now just need to find the closest point, where the mouse was clicke
 document.onclick = ($e) => {
     const newBlockPosition = grid.findPositionClicked(screenObjects, [$e.clientX - canvasWidth / 2, canvasHeight / 2 - $e.clientY] )
     if (newBlockPosition == undefined) { return; }
-    console.log(newBlockPosition)
+    
+    const newSingleBlock = new DoubleBlock(); //double block is a bit weird, probably a bug, single block works fine
+    grid.placeBlock(newSingleBlock, newBlockPosition);
 }
