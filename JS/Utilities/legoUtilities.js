@@ -36,6 +36,7 @@ class LegoGrid {
                 const columnPos = position.column + vector.column;
                 this.data[layerPos][rowPos][columnPos] = block.id;
             }
+            block.position = position;
             this.generateBlockModels();
         };
         this.cleanGrid = () => {
@@ -65,9 +66,10 @@ class LegoGrid {
                         }
                         const currentBlock = blocks[currentBlockID].blockModel;
                         //calculate the position of the newBlock in the 3D world
-                        currentBlock.position.x = (column - this.numOfColumns / 2) * Block.cellSize;
-                        currentBlock.position.y = (layer) * (Block.cellHeight);
-                        currentBlock.position.z = (row - this.numOfRows / 2) * Block.cellSize;
+                        const [blockColumn, blockLayer, blockRow] = [blocks[currentBlockID].position.column, blocks[currentBlockID].position.layer, blocks[currentBlockID].position.row];
+                        currentBlock.position.x = (blockColumn - this.numOfColumns / 2) * Block.cellSize;
+                        currentBlock.position.y = (blockLayer) * (Block.cellHeight);
+                        currentBlock.position.z = (blockRow - this.numOfRows / 2) * Block.cellSize;
                         this.blockModels.push(currentBlock);
                     }
                 }

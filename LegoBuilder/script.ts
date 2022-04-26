@@ -20,8 +20,8 @@ setColour(legoBoard, "#ff0000");
 const singleBlock = new SingleBlock();
 grid.placeBlock(singleBlock, { layer: 0, row: 0, column: 0 });
 
-const singleBlock2 = new SingleBlock();
-grid.placeBlock(singleBlock2, { layer: 19, row: 0, column: 0 });
+const doubleBlock = new DoubleBlock();
+grid.placeBlock(doubleBlock, { layer: 0, row: 1, column: 1 });
 
 setInterval(() => {
 
