@@ -1,5 +1,5 @@
 //Models
-class HalfBlockModel extends Shape {
+class BlockIndicatorModel extends Shape {
     constructor () {
         super();
 
@@ -116,7 +116,7 @@ class BlockIndicator {
     }
 
     constructor () {
-        this.blockModel = new HalfBlockModel();
+        this.blockModel = new BlockIndicatorModel();
         setColour(this.blockModel, "#87ceeb");
         this.blockModel.showOutline = true;
     }

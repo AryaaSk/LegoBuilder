@@ -38,6 +38,18 @@ class LegoGrid {
                     if (Number(this.data[layer][row][column]) == -1) { continue; }
     
                     if (blocks[this.data[layer][row][column]] == undefined) {
+                        //need to find and remove it from this.blockModels
+                        try {
+                            let i = 0;
+                            while (i != this.blockModels.length) {
+                                if (this.blockModels[i].name == this.data[layer][row][column]) {
+                                    this.blockModels.splice(i, 1);
+                                }
+                            }
+                        }
+                        catch {}
+                        
+                        //remove from grid
                         this.data[layer][row][column] = "-1";
                     }
                 }
@@ -45,8 +57,18 @@ class LegoGrid {
         }
     }
 
-    placeBlock = (block: Block , position: { layer: number, row: number, column: number }) => {
+    private generateXYZ(column: number, layer: number, row: number) {
+        const returnXYZ = { x: 0, y: 0, z: 0 };
+        returnXYZ.x = (column - this.numOfColumns / 2) * Block.cellSize;
+        returnXYZ.y = (layer) * (Block.cellHeight);
+        returnXYZ.z = (row - this.numOfRows / 2) * Block.cellSize;    
+        return returnXYZ;
+    }
+
+    blockModels: Shape[] = [];
+    placeBlock = (block: Block , position: { column: number, layer: number, row: number }, speed: number) => {
         if (block.position != undefined) { console.error("Cannot replace block, once you have placed it must be removed and recreated"); return; }
+        block.position = position;
 
         //go to that position in the grid, then go through the block.gridModel, and place blocks down
         for (let vector of block.gridModel) {
@@ -56,27 +78,26 @@ class LegoGrid {
     
             this.data[layerPos][rowPos][columnPos] = block.id;
         }
-        block.position = position;
-        this.generateBlockModels();
-    }
 
-    blockModels: Shape[] = [];
-    generateBlockModels = () => { //need to rewrite, each cell is a fixed size (set in the shapebuilder), the cellSize and cellHeight reflect that
-        this.blockModels = [];
-    
-        for (const currentBlockID in blocks) {
-            if (blocks[currentBlockID].position == undefined) { continue; }
+        //we need to animate it to it's position from [column][numOfLayers - 1][row] -> [column][layer][row]
+        const blockPosition = this.generateXYZ( position.column, position.layer, position.row );
 
-            //calculate the position of the newBlock in the 3D world
-            const [blockColumn, blockLayer, blockRow] = [blocks[currentBlockID].position!.column, blocks[currentBlockID].position!.layer, blocks[currentBlockID].position!.row];
+        block.blockModel.position = { x: blockPosition.x, y: this.numOfLayers * Block.cellHeight, z: blockPosition.z };
+        this.blockModels.push( block.blockModel )
 
-            const currentBlock = blocks[currentBlockID].blockModel;
-            currentBlock.position.x = (blockColumn - this.numOfColumns / 2) * Block.cellSize;
-            currentBlock.position.y = (blockLayer) * (Block.cellHeight);
-            currentBlock.position.z = (blockRow - this.numOfRows / 2) * Block.cellSize;
+        const blockIndex = this.blockModels.length - 1;
+        const repeat = (1 / speed) * 2500;
+        const yDistance = (this.numOfLayers * Block.cellHeight) - (blockPosition.y);
+        const yInterpolation = yDistance / repeat;
+        let counter = 0;
+        const interval = setInterval(() => {
+            this.blockModels[blockIndex].position.y -= yInterpolation;
 
-            this.blockModels.push(currentBlock);
-        }
+            if (counter >= repeat - 1) { 
+                clearInterval(interval);
+            }
+            counter += 1;
+        }, 1)
     }
 
     private getClickableSurfaces() {

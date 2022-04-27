@@ -1,6 +1,6 @@
 "use strict";
 //Models
-class HalfBlockModel extends Shape {
+class BlockIndicatorModel extends Shape {
     constructor() {
         super();
         this.pointMatrix = new matrix();
@@ -80,7 +80,7 @@ Block.cellHeight = 150;
 class BlockIndicator {
     constructor() {
         this.position = { column: 0, layer: 0, row: 0 };
-        this.blockModel = new HalfBlockModel();
+        this.blockModel = new BlockIndicatorModel();
         setColour(this.blockModel, "#87ceeb");
         this.blockModel.showOutline = true;
     }

@@ -37,17 +37,30 @@ class LegoGrid {
                             continue;
                         }
                         if (blocks[this.data[layer][row][column]] == undefined) {
+                            //need to find and remove it from this.blockModels
+                            try {
+                                let i = 0;
+                                while (i != this.blockModels.length) {
+                                    if (this.blockModels[i].name == this.data[layer][row][column]) {
+                                        this.blockModels.splice(i, 1);
+                                    }
+                                }
+                            }
+                            catch (_a) { }
+                            //remove from grid
                             this.data[layer][row][column] = "-1";
                         }
                     }
                 }
             }
         };
-        this.placeBlock = (block, position) => {
+        this.blockModels = [];
+        this.placeBlock = (block, position, speed) => {
             if (block.position != undefined) {
                 console.error("Cannot replace block, once you have placed it must be removed and recreated");
                 return;
             }
+            block.position = position;
             //go to that position in the grid, then go through the block.gridModel, and place blocks down
             for (let vector of block.gridModel) {
                 const layerPos = position.layer + vector.layer;
@@ -55,26 +68,31 @@ class LegoGrid {
                 const columnPos = position.column + vector.column;
                 this.data[layerPos][rowPos][columnPos] = block.id;
             }
-            block.position = position;
-            this.generateBlockModels();
-        };
-        this.blockModels = [];
-        this.generateBlockModels = () => {
-            this.blockModels = [];
-            for (const currentBlockID in blocks) {
-                if (blocks[currentBlockID].position == undefined) {
-                    continue;
+            //we need to animate it to it's position from [column][numOfLayers - 1][row] -> [column][layer][row]
+            const blockPosition = this.generateXYZ(position.column, position.layer, position.row);
+            block.blockModel.position = { x: blockPosition.x, y: this.numOfLayers * Block.cellHeight, z: blockPosition.z };
+            this.blockModels.push(block.blockModel);
+            const blockIndex = this.blockModels.length - 1;
+            const repeat = (1 / speed) * 2500;
+            const yDistance = (this.numOfLayers * Block.cellHeight) - (blockPosition.y);
+            const yInterpolation = yDistance / repeat;
+            let counter = 0;
+            const interval = setInterval(() => {
+                this.blockModels[blockIndex].position.y -= yInterpolation;
+                if (counter >= repeat - 1) {
+                    clearInterval(interval);
                 }
-                //calculate the position of the newBlock in the 3D world
-                const [blockColumn, blockLayer, blockRow] = [blocks[currentBlockID].position.column, blocks[currentBlockID].position.layer, blocks[currentBlockID].position.row];
-                const currentBlock = blocks[currentBlockID].blockModel;
-                currentBlock.position.x = (blockColumn - this.numOfColumns / 2) * Block.cellSize;
-                currentBlock.position.y = (blockLayer) * (Block.cellHeight);
-                currentBlock.position.z = (blockRow - this.numOfRows / 2) * Block.cellSize;
-                this.blockModels.push(currentBlock);
-            }
+                counter += 1;
+            }, 1);
         };
         this.distanceBetween2D = (p1, p2) => { return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2); };
+    }
+    generateXYZ(column, layer, row) {
+        const returnXYZ = { x: 0, y: 0, z: 0 };
+        returnXYZ.x = (column - this.numOfColumns / 2) * Block.cellSize;
+        returnXYZ.y = (layer) * (Block.cellHeight);
+        returnXYZ.z = (row - this.numOfRows / 2) * Block.cellSize;
+        return returnXYZ;
     }
     getClickableSurfaces() {
         //first find all clickable surfaces, which is just the tops of any blocks, or the board. Go through each column + row in the board, and keep going down until you hit something

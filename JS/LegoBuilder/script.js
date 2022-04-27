@@ -19,13 +19,12 @@ legoBoard.faces[5].colour = "";
 legoBoard.name = "board";
 const blockIndicator = new BlockIndicator();
 let screenObjects = [];
-let outputScreenObjects = [];
 setInterval(() => {
     clearCanvas();
     camera.renderGrid();
     screenObjects = camera.render([legoBoard]);
-    screenObjects.concat(camera.render(grid.blockModels.concat([blockIndicator.blockModel])));
-    outputScreenObjects = screenObjects;
+    camera.render(grid.blockModels
+        .concat([blockIndicator.blockModel]));
     plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is
 }, 16);
 //show preview of where block will be placed, onmousemove()
@@ -33,7 +32,10 @@ let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
     //Chrome's Mouse position API is buggy
     [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
-    const mousePosition = grid.getPositionClicked(outputScreenObjects, [x, y]);
+    if (screenObjects.length == 0) {
+        return;
+    }
+    const mousePosition = grid.getPositionClicked(screenObjects, [x, y]);
     if (mousePosition == undefined) {
         blockIndicator.position = undefined;
         blockIndicator.blockModel.position.y = 10000;
@@ -43,11 +45,11 @@ document.onmousemove = ($e) => {
     blockIndicator.position = mousePosition;
     blockIndicator.syncPosition(grid);
 };
-document.onclick = ($e) => {
+document.onclick = () => {
     if (blockIndicator.position == undefined) {
         return;
     }
     //Just place block where the block indicator is
-    const newSingleBlock = new DoubleBlock();
-    grid.placeBlock(newSingleBlock, blockIndicator.position);
+    const newSingleBlock = new SingleBlock();
+    grid.placeBlock(newSingleBlock, blockIndicator.position, 50);
 };
