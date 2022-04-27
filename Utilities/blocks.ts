@@ -1,4 +1,23 @@
 //Models
+class HalfBlockModel extends Shape {
+    constructor () {
+        super();
+
+        this.pointMatrix = new matrix();
+        const points = [[0,0,0],[100,0,0],[100,0,100],[0,0,100],[0,40,0],[100,40,0],[100,40,100],[0,40,100]];
+        for (let i = 0; i != points.length; i += 1)
+        { this.pointMatrix.addColumn(points[i]); }
+
+        const [centeringX, centeringY, centeringZ] = [0, 0, 0];
+        this.pointMatrix.translateMatrix(centeringX, centeringY, centeringZ);
+
+        this.setFaces();
+        this.updateMatrices();
+    }
+    setFaces() {
+        this.faces = [{pointIndexes:[0,1,2,3],colour:"#c4c4c4"},{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[1,2,6,5],colour:"#c4c4c4"},{pointIndexes:[4,5,6,7],colour:"#c4c4c4"},{pointIndexes:[0,4,7,3],colour:"#c4c4c4"},{pointIndexes:[2,3,7,6],colour:"#c4c4c4"}];
+    }
+}
 class SingleBlockModel extends Shape {
     constructor () {
         super();
@@ -74,6 +93,27 @@ class Block {
             }
         }
         return String(newID);
+    }
+}
+
+class BlockIndicator {
+
+    position = { column: 0, layer: 0, row: 0 };
+    blockModel: Shape;
+
+    syncPosition(grid: LegoGrid) {
+        //need to convert to xyz
+        const XYZPosition = { x: 0, y: 0, z: 0 };
+        XYZPosition.x = (this.position.column - grid.numOfColumns / 2) * Block.cellSize;
+        XYZPosition.y = (this.position.layer) * (Block.cellHeight);
+        XYZPosition.z = (this.position.row - grid.numOfRows / 2) * Block.cellSize;
+        this.blockModel.position = XYZPosition;
+    }
+
+    constructor () {
+        this.blockModel = new HalfBlockModel();
+        setColour(this.blockModel, "#87ceeb");
+        this.blockModel.showOutline = true;
     }
 }
 

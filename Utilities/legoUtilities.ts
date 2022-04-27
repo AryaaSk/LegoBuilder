@@ -79,6 +79,25 @@ class LegoGrid {
         }
     }
 
+    private getClickableSurfaces() {
+        //first find all clickable surfaces, which is just the tops of any blocks, or the board. Go through each column + row in the board, and keep going down until you hit something
+        const clickableSurfaces: { column: number, layer: number, row: number}[] = [];
+        const startAtLayer = this.numOfLayers - 1;
+
+        for (let row = 0; row != this.data[startAtLayer].length; row += 1) {
+            for (let column = 0; column != this.data[startAtLayer][row].length; column += 1) {
+
+                //repeat until you hit something or you hit the board
+                let i = startAtLayer;
+                while ( i != -1) {
+                    if (this.data[i][row][column] != "-1") {  break;  }
+                    i -= 1;
+                }
+                clickableSurfaces.push( { column: column, layer: i, row: row } );
+            }
+        }
+        return clickableSurfaces;
+    }
     private generateVirtualCenters(screenObjects: { object: Shape, screenPoints: matrix, center: number[]}[], clickableSurfaces: { column: number, layer: number, row: number}[]) {
         const clickableSurfaceCenters: { position: { column: number, layer: number, row: number }, surfaceCenter: number[] }[] = [];
 
@@ -125,38 +144,27 @@ class LegoGrid {
 
         return clickableSurfaceCenters;
     }
+    private distanceBetween2D = (p1: number[], p2: number[]) => { return Math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2); }
 
-    findPositionClicked(screenpoints: { object: Shape, screenPoints: matrix, center: number[]}[], clicked: number[] ) {
-        //first find all clickable surfaces, which is just the tops of any blocks, or the board. Go through each column + row in the board, and keep going down until you hit something
-        const clickableSurfaces: { column: number, layer: number, row: number}[] = [];
-        const startAtLayer = this.numOfLayers - 1;
-
-        for (let row = 0; row != this.data[startAtLayer].length; row += 1) {
-            for (let column = 0; column != this.data[startAtLayer][row].length; column += 1) {
-
-                //repeat until you hit something or you hit the board
-                let i = startAtLayer;
-                while ( i != -1) {
-                    if (this.data[i][row][column] != "-1") {  break;  }
-                    i -= 1;
-                }
-                clickableSurfaces.push( { column: column, layer: i, row: row } );
+    private findClosestDistance(list: any[], positionKey: string, positionPoint: number[]) {
+        let closestSurfaceIndex = 0;
+        for (let i = 0; i != list.length; i += 1) {
+            if (this.distanceBetween2D(positionPoint, list[i][positionKey]) < this.distanceBetween2D(positionPoint, list[closestSurfaceIndex][positionKey])) {
+                closestSurfaceIndex = i;
             }
         }
+        return closestSurfaceIndex; //returns index
+    }
+    getPositionClicked(screenpoints: { object: Shape, screenPoints: matrix, center: number[]}[], clicked: number[] ) {
+        const clickableSurfaces = this.getClickableSurfaces();
 
         //now we generate the virtual faces for the surfaces
         const clickableSurfaceCenters = this.generateVirtualCenters(screenpoints, clickableSurfaces);
 
         //find the point which is closest to the mouse click
-        const distanceBetween2D = (p1: number[], p2: number[]) => { return Math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2); }
-        let closestSurfaceIndex = 0;
-        for (let i = 0; i != clickableSurfaceCenters.length; i += 1) {
-            if (distanceBetween2D(clicked, clickableSurfaceCenters[i].surfaceCenter) < distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter)) {
-                closestSurfaceIndex = i;
-            }
-        }
+        const closestSurfaceIndex = this.findClosestDistance(clickableSurfaceCenters, "surfaceCenter", clicked);
 
-        if (distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) { return undefined; }
+        if (this.distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) { return undefined; }
         else {
             return clickableSurfaceCenters[closestSurfaceIndex].position;
         }

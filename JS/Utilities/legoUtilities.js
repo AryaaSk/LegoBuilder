@@ -74,6 +74,26 @@ class LegoGrid {
                 this.blockModels.push(currentBlock);
             }
         };
+        this.distanceBetween2D = (p1, p2) => { return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2); };
+    }
+    getClickableSurfaces() {
+        //first find all clickable surfaces, which is just the tops of any blocks, or the board. Go through each column + row in the board, and keep going down until you hit something
+        const clickableSurfaces = [];
+        const startAtLayer = this.numOfLayers - 1;
+        for (let row = 0; row != this.data[startAtLayer].length; row += 1) {
+            for (let column = 0; column != this.data[startAtLayer][row].length; column += 1) {
+                //repeat until you hit something or you hit the board
+                let i = startAtLayer;
+                while (i != -1) {
+                    if (this.data[i][row][column] != "-1") {
+                        break;
+                    }
+                    i -= 1;
+                }
+                clickableSurfaces.push({ column: column, layer: i, row: row });
+            }
+        }
+        return clickableSurfaces;
     }
     generateVirtualCenters(screenObjects, clickableSurfaces) {
         const clickableSurfaceCenters = [];
@@ -110,34 +130,22 @@ class LegoGrid {
         }
         return clickableSurfaceCenters;
     }
-    findPositionClicked(screenpoints, clicked) {
-        //first find all clickable surfaces, which is just the tops of any blocks, or the board. Go through each column + row in the board, and keep going down until you hit something
-        const clickableSurfaces = [];
-        const startAtLayer = this.numOfLayers - 1;
-        for (let row = 0; row != this.data[startAtLayer].length; row += 1) {
-            for (let column = 0; column != this.data[startAtLayer][row].length; column += 1) {
-                //repeat until you hit something or you hit the board
-                let i = startAtLayer;
-                while (i != -1) {
-                    if (this.data[i][row][column] != "-1") {
-                        break;
-                    }
-                    i -= 1;
-                }
-                clickableSurfaces.push({ column: column, layer: i, row: row });
-            }
-        }
-        //now we generate the virtual faces for the surfaces
-        const clickableSurfaceCenters = this.generateVirtualCenters(screenpoints, clickableSurfaces);
-        //find the point which is closest to the mouse click
-        const distanceBetween2D = (p1, p2) => { return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2); };
+    findClosestDistance(list, positionKey, positionPoint) {
         let closestSurfaceIndex = 0;
-        for (let i = 0; i != clickableSurfaceCenters.length; i += 1) {
-            if (distanceBetween2D(clicked, clickableSurfaceCenters[i].surfaceCenter) < distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter)) {
+        for (let i = 0; i != list.length; i += 1) {
+            if (this.distanceBetween2D(positionPoint, list[i][positionKey]) < this.distanceBetween2D(positionPoint, list[closestSurfaceIndex][positionKey])) {
                 closestSurfaceIndex = i;
             }
         }
-        if (distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) {
+        return closestSurfaceIndex; //returns index
+    }
+    getPositionClicked(screenpoints, clicked) {
+        const clickableSurfaces = this.getClickableSurfaces();
+        //now we generate the virtual faces for the surfaces
+        const clickableSurfaceCenters = this.generateVirtualCenters(screenpoints, clickableSurfaces);
+        //find the point which is closest to the mouse click
+        const closestSurfaceIndex = this.findClosestDistance(clickableSurfaceCenters, "surfaceCenter", clicked);
+        if (this.distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) {
             return undefined;
         }
         else {

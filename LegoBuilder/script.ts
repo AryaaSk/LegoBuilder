@@ -21,32 +21,30 @@ legoBoard.faces[4].colour = "";
 legoBoard.faces[5].colour = "";
 legoBoard.name = "board";
 
-
-const singleBlock = new SingleBlock();
-grid.placeBlock(singleBlock, { layer: 0, row: 0, column: 0 });
-
-const doubleBlock = new DoubleBlock();
-grid.placeBlock(doubleBlock, { layer: 0, row: 2, column: 1 });
-
-const doubleBlock2 = new DoubleBlock();
-grid.placeBlock(doubleBlock2, { layer: 1, row: 2, column: 2 });
+const blockIndicator = new BlockIndicator();
 
 let screenObjects: { object: Shape, screenPoints: matrix, center: number[]}[] = [];
+let outputScreenObjects: { object: Shape, screenPoints: matrix, center: number[]}[] = [];
 setInterval(() => {
 
     clearCanvas();
     camera.renderGrid();
     screenObjects = camera.render([legoBoard]);
-    screenObjects.concat(camera.render(grid.blockModels));
-    //grid.findPositionClicked(screenObjects, [-10000, -10000] )
+    screenObjects.concat(camera.render(grid.blockModels.concat([blockIndicator.blockModel])));
+    outputScreenObjects = screenObjects;
 }, 16);
-console.log("Green points represent the virtual face centers");
-console.log("Now just need to find the closest point, where the mouse was clicked");
 
-document.onclick = ($e) => {
-    const newBlockPosition = grid.findPositionClicked(screenObjects, [$e.clientX - canvasWidth / 2, canvasHeight / 2 - $e.clientY] )
-    if (newBlockPosition == undefined) { return; }
-    
-    const newSingleBlock = new DoubleBlock(); //double block is a bit weird, probably a bug, single block works fine
-    grid.placeBlock(newSingleBlock, newBlockPosition);
+//show preview of where block will be placed, onmousemove()
+document.onmousemove = ($e) => {
+    const mousePosition = grid.getPositionClicked(outputScreenObjects, [$e.clientX - canvasWidth / 2, canvasHeight / 2 - $e.clientY] )
+    if (mousePosition == undefined) { blockIndicator.blockModel.position.y = 10000; return; };
+
+    blockIndicator.position = mousePosition;
+    blockIndicator.syncPosition(grid);
+}
+
+document.onclick = ($e) => {    
+    //Just place block where the block indicator is
+    const newSingleBlock = new SingleBlock();
+    grid.placeBlock(newSingleBlock, blockIndicator.position);
 }
