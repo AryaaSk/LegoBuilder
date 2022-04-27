@@ -11,7 +11,7 @@ class LegoGrid {
     numOfRows: number = 0;
     numOfColumns: number = 0;
 
-    generateGrid = (width: number, depth: number, height: number) => {
+    generateGrid = (width: number, height: number, depth: number) => {
         const newGrid: string[][][] = []
         for (let _ = 0; _ != height; _ += 1) {
             const currentLayer: string[][] = [];

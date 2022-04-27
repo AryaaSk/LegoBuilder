@@ -85,6 +85,10 @@ class BlockIndicator {
         this.blockModel.showOutline = true;
     }
     syncPosition(grid) {
+        if (this.position == undefined) {
+            console.error("Block position is undefined, cannont sync");
+            return;
+        }
         //need to convert to xyz
         const XYZPosition = { x: 0, y: 0, z: 0 };
         XYZPosition.x = (this.position.column - grid.numOfColumns / 2) * Block.cellSize;

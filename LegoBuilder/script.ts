@@ -3,12 +3,13 @@ linkCanvas("renderingWindow");
 const camera = new Camera();
 camera.worldRotation = { x: -20, y: 20, z: 0 };
 camera.updateRotationMatrix();
+camera.zoom = 0.5;
 camera.enableMovementControls("renderingWindow", true, true, true, true);
 
 
 
 const grid = new LegoGrid();
-grid.generateGrid(10, 15, 10); //10 blocks wide, 15 blocks deep, 10 blocks tall
+grid.generateGrid(40, 40, 40); //10 blocks wide, 10 blocks tall, 15 blocks deep
 
 //Board scaled to fit the LegoGrid()
 const legoBoard = new Box(grid.numOfColumns * Block.cellSize, grid.numOfLayers * Block.cellHeight, grid.numOfRows * Block.cellSize);
@@ -32,19 +33,28 @@ setInterval(() => {
     screenObjects = camera.render([legoBoard]);
     screenObjects.concat(camera.render(grid.blockModels.concat([blockIndicator.blockModel])));
     outputScreenObjects = screenObjects;
+
+    plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is
+
 }, 16);
 
 //show preview of where block will be placed, onmousemove()
+let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
-    const mousePosition = grid.getPositionClicked(outputScreenObjects, [$e.clientX - canvasWidth / 2, canvasHeight / 2 - $e.clientY] )
-    if (mousePosition == undefined) { blockIndicator.blockModel.position.y = 10000; return; };
+    //Chrome's Mouse position API is buggy
+    [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY]
+
+    const mousePosition = grid.getPositionClicked(outputScreenObjects, [x, y] )
+    if (mousePosition == undefined) { blockIndicator.position = undefined; blockIndicator.blockModel.position.y = 10000; return; };
 
     blockIndicator.position = mousePosition;
     blockIndicator.syncPosition(grid);
 }
 
-document.onclick = ($e) => {    
+document.onclick = ($e) => {
+    if (blockIndicator.position == undefined) { return; }
+
     //Just place block where the block indicator is
-    const newSingleBlock = new SingleBlock();
+    const newSingleBlock = new DoubleBlock();
     grid.placeBlock(newSingleBlock, blockIndicator.position);
 }

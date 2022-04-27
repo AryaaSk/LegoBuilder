@@ -10,7 +10,7 @@ class LegoGrid {
         this.numOfLayers = 0;
         this.numOfRows = 0;
         this.numOfColumns = 0;
-        this.generateGrid = (width, depth, height) => {
+        this.generateGrid = (width, height, depth) => {
             const newGrid = [];
             for (let _ = 0; _ != height; _ += 1) {
                 const currentLayer = [];
