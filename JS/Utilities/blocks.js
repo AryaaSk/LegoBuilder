@@ -75,7 +75,7 @@ class Block {
         return String(newID);
     }
 }
-Block.cellSize = 100;
+Block.cellSize = 100; //define the size of each cell here, then make the block models the same size
 Block.cellHeight = 150;
 class BlockIndicator {
     constructor() {

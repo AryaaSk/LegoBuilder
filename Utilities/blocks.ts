@@ -81,7 +81,7 @@ class Block {
         grid.cleanGrid();
     }
 
-    static cellSize = 100;
+    static cellSize = 100; //define the size of each cell here, then make the block models the same size
     static cellHeight = 150;
 
     static generateID() {
