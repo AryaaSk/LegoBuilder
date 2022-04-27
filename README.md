@@ -1,4 +1,4 @@
-# Lego Builder Plan
+# Lego Builder
 
 ## General Idea
 - Start with an empty board, no need to use a checkerboard.

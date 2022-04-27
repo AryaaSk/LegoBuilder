@@ -1,23 +1,4 @@
 //Models
-class BlockIndicatorModel extends Shape {
-    constructor () {
-        super();
-
-        this.pointMatrix = new matrix();
-        const points = [[0,0,0],[100,0,0],[100,0,100],[0,0,100],[0,40,0],[100,40,0],[100,40,100],[0,40,100]];
-        for (let i = 0; i != points.length; i += 1)
-        { this.pointMatrix.addColumn(points[i]); }
-
-        const [centeringX, centeringY, centeringZ] = [0, 0, 0];
-        this.pointMatrix.translateMatrix(centeringX, centeringY, centeringZ);
-
-        this.setFaces();
-        this.updateMatrices();
-    }
-    setFaces() {
-        this.faces = [{pointIndexes:[0,1,2,3],colour:"#c4c4c4"},{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[1,2,6,5],colour:"#c4c4c4"},{pointIndexes:[4,5,6,7],colour:"#c4c4c4"},{pointIndexes:[0,4,7,3],colour:"#c4c4c4"},{pointIndexes:[2,3,7,6],colour:"#c4c4c4"}];
-    }
-}
 class SingleBlockModel extends Shape {
     constructor () {
         super();
@@ -62,10 +43,10 @@ class DoubleBlockModel extends Shape {
 
 
 
-const blocks: { [k: string] : Block } = {};
-
+const blocks: { [k: string] : Block } = {}; //the blocks currently on the grid (with their own unique identifier)
 class Block {
     id: string;
+    blockName: string = "";
 
     position?: { layer: number, row: number, column: number } = undefined;
     gridModel: { layer: number, row: number, column: number }[] = []; //a list of vectors from the original point, where the block will fill up
@@ -96,8 +77,21 @@ class Block {
     }
 }
 
+const generateBlockIndicatorModel = (model: Shape) => { //creates a replica of the model with half the height
+    const newModel = new Shape(); //only copying 
+    newModel.faces = model.faces;
+    newModel.pointMatrix = model.pointMatrix.copy();
+    for (let i = 0; i != newModel.pointMatrix.width; i += 1) {
+        if (newModel.pointMatrix.getColumn(i)[1] == Block.cellHeight) {
+            newModel.pointMatrix.setValue(i, 1, Block.cellHeight * 0.267);
+        }
+    }
+    newModel.updateMatrices();
+    setColour(newModel, "#87ceeb");
+    newModel.showOutline = true;
+    return newModel;
+}
 class BlockIndicator {
-
     position? = { column: 0, layer: 0, row: 0 };
     blockModel: Shape;
 
@@ -116,9 +110,7 @@ class BlockIndicator {
     }
 
     constructor () {
-        this.blockModel = new BlockIndicatorModel();
-        setColour(this.blockModel, "#87ceeb");
-        this.blockModel.showOutline = true;
+        this.blockModel = generateBlockIndicatorModel( new SingleBlockModel() );
     }
 }
 
@@ -128,6 +120,7 @@ class SingleBlock extends Block {
 
         this.gridModel = [{ layer: 0, row: 0, column: 0 }];
         this.blockModel = new SingleBlockModel();
+        this.blockName = "singleBlock";
         this.blockModel.showOutline = true;
         this.blockModel.name = this.id;
     }
@@ -138,6 +131,7 @@ class DoubleBlock extends Block {
 
         this.gridModel = [{ layer: 0, row: 0, column: 0 }, { layer: 0, row: 0, column: 1 }];
         this.blockModel = new DoubleBlockModel();
+        this.blockName = "doubleBlock";
         this.blockModel.showOutline = true;
         this.blockModel.name = this.id;
     }

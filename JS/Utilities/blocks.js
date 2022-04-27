@@ -1,22 +1,5 @@
 "use strict";
 //Models
-class BlockIndicatorModel extends Shape {
-    constructor() {
-        super();
-        this.pointMatrix = new matrix();
-        const points = [[0, 0, 0], [100, 0, 0], [100, 0, 100], [0, 0, 100], [0, 40, 0], [100, 40, 0], [100, 40, 100], [0, 40, 100]];
-        for (let i = 0; i != points.length; i += 1) {
-            this.pointMatrix.addColumn(points[i]);
-        }
-        const [centeringX, centeringY, centeringZ] = [0, 0, 0];
-        this.pointMatrix.translateMatrix(centeringX, centeringY, centeringZ);
-        this.setFaces();
-        this.updateMatrices();
-    }
-    setFaces() {
-        this.faces = [{ pointIndexes: [0, 1, 2, 3], colour: "#c4c4c4" }, { pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4" }, { pointIndexes: [1, 2, 6, 5], colour: "#c4c4c4" }, { pointIndexes: [4, 5, 6, 7], colour: "#c4c4c4" }, { pointIndexes: [0, 4, 7, 3], colour: "#c4c4c4" }, { pointIndexes: [2, 3, 7, 6], colour: "#c4c4c4" }];
-    }
-}
 class SingleBlockModel extends Shape {
     constructor() {
         super();
@@ -51,9 +34,10 @@ class DoubleBlockModel extends Shape {
         this.faces = [{ pointIndexes: [0, 1, 2, 3], colour: "#c4c4c4" }, { pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4" }, { pointIndexes: [1, 2, 6, 5], colour: "#c4c4c4" }, { pointIndexes: [4, 5, 6, 7], colour: "#c4c4c4" }, { pointIndexes: [0, 4, 7, 3], colour: "#c4c4c4" }, { pointIndexes: [2, 3, 7, 6], colour: "#c4c4c4" }];
     }
 }
-const blocks = {};
+const blocks = {}; //the blocks currently on the grid (with their own unique identifier)
 class Block {
     constructor() {
+        this.blockName = "";
         this.position = undefined;
         this.gridModel = []; //a list of vectors from the original point, where the block will fill up
         this.blockModel = new Shape(); //when creating the model, make sure it extends into the x - z direction, do not center it on any axis, and also make each cell 100 * 100, and 150 wide, then we can scale
@@ -77,12 +61,24 @@ class Block {
 }
 Block.cellSize = 100; //define the size of each cell here, then make the block models the same size
 Block.cellHeight = 150;
+const generateBlockIndicatorModel = (model) => {
+    const newModel = new Shape(); //only copying 
+    newModel.faces = model.faces;
+    newModel.pointMatrix = model.pointMatrix.copy();
+    for (let i = 0; i != newModel.pointMatrix.width; i += 1) {
+        if (newModel.pointMatrix.getColumn(i)[1] == Block.cellHeight) {
+            newModel.pointMatrix.setValue(i, 1, Block.cellHeight * 0.267);
+        }
+    }
+    newModel.updateMatrices();
+    setColour(newModel, "#87ceeb");
+    newModel.showOutline = true;
+    return newModel;
+};
 class BlockIndicator {
     constructor() {
         this.position = { column: 0, layer: 0, row: 0 };
-        this.blockModel = new BlockIndicatorModel();
-        setColour(this.blockModel, "#87ceeb");
-        this.blockModel.showOutline = true;
+        this.blockModel = generateBlockIndicatorModel(new SingleBlockModel());
     }
     syncPosition(grid) {
         if (this.position == undefined) {
@@ -102,6 +98,7 @@ class SingleBlock extends Block {
         super();
         this.gridModel = [{ layer: 0, row: 0, column: 0 }];
         this.blockModel = new SingleBlockModel();
+        this.blockName = "singleBlock";
         this.blockModel.showOutline = true;
         this.blockModel.name = this.id;
     }
@@ -111,6 +108,7 @@ class DoubleBlock extends Block {
         super();
         this.gridModel = [{ layer: 0, row: 0, column: 0 }, { layer: 0, row: 0, column: 1 }];
         this.blockModel = new DoubleBlockModel();
+        this.blockName = "doubleBlock";
         this.blockModel.showOutline = true;
         this.blockModel.name = this.id;
     }

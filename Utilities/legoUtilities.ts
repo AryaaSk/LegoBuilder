@@ -93,9 +93,7 @@ class LegoGrid {
         const interval = setInterval(() => {
             this.blockModels[blockIndex].position.y -= yInterpolation;
 
-            if (counter >= repeat - 1) { 
-                clearInterval(interval);
-            }
+            if (counter >= repeat - 1) {  clearInterval(interval); }
             counter += 1;
         }, 1)
     }

@@ -61,7 +61,7 @@ document.onmousemove = ($e) => {
     const mousePosition = grid.getPositionClicked(screenObjects, [x, y]);
     if (mousePosition == undefined) {
         blockIndicator.position = undefined;
-        blockIndicator.blockModel.position.y = 10000;
+        blockIndicator.blockModel.position.x = -1000000;
         return;
     }
     ;
@@ -75,4 +75,7 @@ document.onclick = () => {
     //Just place block where the block indicator is
     const newSingleBlock = new SingleBlock();
     grid.placeBlock(newSingleBlock, blockIndicator.position, 50);
+};
+document.onkeydown = () => {
+    blockIndicator.blockModel = generateBlockIndicatorModel(new DoubleBlockModel());
 };
