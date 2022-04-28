@@ -64,8 +64,11 @@ setInterval(() => {
 
 //BLOCKS
 let currentBlockIndex = 0;
+const updateBlockIndicator = () => {
+    blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel( availableBlocks[currentBlockIndex].blockModel.clone() );
+}
 const blockIndicator = new BlockIndicator();
-blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel( availableBlocks[currentBlockIndex].blockModel.clone() );
+updateBlockIndicator();
 
 //show preview of where block will be placed, onmousemove()
 const updateBlockIndicatorPosition = (x: number, y: number) => {
@@ -95,12 +98,36 @@ document.onclick = () => {
     placeBlockAtIndicator();
 }
 
-document.onkeydown = ($e) => {
-    const key = $e.key.toLowerCase();
-    if (key == "1") { currentBlockIndex = 0; }
-    else if (key == "2") { currentBlockIndex = 1; }
-    else if (key == "3") { currentBlockIndex = 2; }
 
-    blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel( availableBlocks[currentBlockIndex].blockModel.clone() );
-    updateBlockIndicatorPosition( x, y );
+
+
+
+
+//BLOCK SELECTION
+const initializeSelection = () => {
+    const blockSelection = document.getElementById("blockSelection")!;
+
+    blockSelection.innerHTML = `
+    <h2><u> Select Block </u></h2>
+    `;
+
+    for (let i = 0; i != availableBlocks.length; i += 1) {
+        const block = availableBlocks[i];
+        blockSelection.innerHTML += `
+        <input type="button" class="blockSelectionButton" value="${block.blockName}" id="selectBlock${String(i)}">
+        <br>
+        `
+    }
 }
+const initalizeButtonListeners = () => {
+    for (let i = 0; i != availableBlocks.length; i += 1) {
+        document.getElementById("selectBlock" + String(i))!.onclick = () => {
+            currentBlockIndex = i;
+            updateBlockIndicator();
+            updateBlockIndicatorPosition( x, y );
+        }
+    }
+}
+
+initializeSelection();
+initalizeButtonListeners();
