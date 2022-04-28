@@ -1,9 +1,4 @@
 "use strict";
-const setColour = (shape, colour) => {
-    for (let i = 0; i != shape.faces.length; i += 1) {
-        shape.faces[i].colour = colour;
-    }
-};
 class LegoGrid {
     constructor() {
         this.data = [];

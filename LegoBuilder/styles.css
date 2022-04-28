@@ -1,0 +1,9 @@
+#blockSelection {
+    position: fixed;   
+    top: 25;
+    left: 25;
+    bottom: 25;
+    width: 300px;
+
+    background-color: red;
+}

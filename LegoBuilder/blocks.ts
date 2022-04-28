@@ -1,7 +1,13 @@
 const blocks: { [k: string] : Block } = {}; //the blocks currently on the grid (with their own unique identifier)
-const availableBlocks: Block[] = [];
+const availableBlocks: Block[] = []; //the blocks which are available to place, to use one you just need to clone a block at a specified index
 
 //Models
+const setColour = (shape: Shape, colour: string) => {
+    for (let i = 0; i != shape.faces.length; i += 1) {
+        shape.faces[i].colour = colour;
+    }
+}
+
 class SingleBlockModel extends Shape {
     constructor () {
         super();
@@ -40,6 +46,25 @@ class DoubleBlockModel extends Shape {
         this.faces = [{pointIndexes:[0,1,2,3],colour:"#c4c4c4"},{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[1,2,6,5],colour:"#c4c4c4"},{pointIndexes:[4,5,6,7],colour:"#c4c4c4"},{pointIndexes:[0,4,7,3],colour:"#c4c4c4"},{pointIndexes:[2,3,7,6],colour:"#c4c4c4"}];
     }
 }
+class SidewayStairModel extends Shape {
+    constructor () {
+        super();
+
+        this.pointMatrix = new matrix();
+        const points = [[0,0,0],[200,0,0],[200,0,100],[0,0,200],[0,150,0],[200,150,0],[200,150,100],[0,150,200],[100,0,100],[100,150,100],[100,0,200],[100,150,200]];
+        for (let i = 0; i != points.length; i += 1)
+        { this.pointMatrix.addColumn(points[i]); }
+
+        const [centeringX, centeringY, centeringZ] = [0, 0, 0];
+        this.pointMatrix.translateMatrix(centeringX, centeringY, centeringZ);
+
+        this.setFaces();
+        this.updateMatrices();
+    }
+    setFaces() {
+        this.faces = [{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[5,6,2,1],colour:"#c4c4c4"},{pointIndexes:[6,9,8,2],colour:"#c4c4c4"},{pointIndexes:[9,11,10,8],colour:"#c4c4c4"},{pointIndexes:[11,7,3,10],colour:"#c4c4c4"},{pointIndexes:[7,4,0,3],colour:"#c4c4c4"},{pointIndexes:[5,4,7,11,9,6],colour:"#c4c4c4"},{pointIndexes:[1,2,8,10,3,0],colour:"#c4c4c4"}];
+    }
+}
 
 
 
@@ -56,6 +81,10 @@ class Block {
     constructor() {
         this.id = Block.generateID();
         blocks[this.id] = this;
+    }
+    configureBlockModel () {
+        this.blockModel.showOutline = true;
+        this.blockModel.name = this.id;
     }
 
     removeBlock(grid: LegoGrid) {
@@ -141,23 +170,34 @@ class SingleBlock extends Block {
     constructor () {
         super();
 
-        this.gridModel = [{ layer: 0, row: 0, column: 0 }];
+        this.gridModel = [{ column: 0, layer: 0, row: 0 }];
         this.blockModel = new SingleBlockModel();
         this.blockName = "Single Block";
-        this.blockModel.showOutline = true;
-        this.blockModel.name = this.id;
+        this.configureBlockModel();
     }
 }
 availableBlocks.push( new SingleBlock() );
+
 class DoubleBlock extends Block {
     constructor () {
         super();
 
-        this.gridModel = [{ layer: 0, row: 0, column: 0 }, { layer: 0, row: 0, column: 1 }];
+        this.gridModel = [{ column: 0, layer: 0, row: 0 }, { column: 1, layer: 0, row: 0 }];
         this.blockModel = new DoubleBlockModel();
         this.blockName = "Double Block";
-        this.blockModel.showOutline = true;
-        this.blockModel.name = this.id;
+        this.configureBlockModel();
     }
 }
 availableBlocks.push( new DoubleBlock() );
+
+class SidewayStairBlock extends Block {
+    constructor () {
+        super();
+
+        this.gridModel = [ { column: 0, layer: 0, row: 0 }, { column: 1, layer: 0, row: 0 }, { column: 0, layer: 0, row: 1 } ];
+        this.blockModel = new SidewayStairModel();
+        this.blockName = "Sideways Stair Block";
+        this.configureBlockModel();
+    }
+}
+availableBlocks.push( new SidewayStairBlock() );

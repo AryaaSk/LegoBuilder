@@ -1,9 +1,3 @@
-const setColour = (shape: Shape, colour: string) => {
-    for (let i = 0; i != shape.faces.length; i += 1) {
-        shape.faces[i].colour = colour;
-    }
-}
-
 class LegoGrid {
 
     data: string[][][] = [];

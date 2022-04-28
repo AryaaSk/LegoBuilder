@@ -1,24 +1,33 @@
 "use strict";
-linkCanvas("renderingWindow");
-const camera = new Camera();
-camera.worldRotation = { x: -20, y: 20, z: 0 };
-camera.updateRotationMatrix();
-camera.zoom = 0.5;
-camera.enableMovementControls("renderingWindow", true, true, true, true);
+//SETUPS
+//ARYAA3D SETUP
+const setupAryaa3D = () => {
+    linkCanvas("renderingWindow");
+    const camera = new Camera();
+    camera.worldRotation = { x: -20, y: 20, z: 0 };
+    camera.updateRotationMatrix();
+    camera.zoom = 0.5;
+    camera.enableMovementControls("renderingWindow", true, true, true, true);
+    return [camera];
+};
+//LEGO SETUP
+const setupBoard = (grid) => {
+    //Board scaled to fit the LegoGrid()
+    const legoBoard = new Box(grid.numOfColumns * Block.cellSize, grid.numOfLayers * Block.cellHeight, grid.numOfRows * Block.cellSize);
+    legoBoard.name = "board";
+    legoBoard.position.y += (grid.numOfLayers * Block.cellHeight) / 2;
+    setColour(legoBoard, "");
+    legoBoard.faces[3].colour = "#dbdbdb";
+    legoBoard.showOutline = true;
+    return [legoBoard];
+};
+//MAIN SETUP
+const [camera] = setupAryaa3D();
 const grid = new LegoGrid();
 grid.generateGrid(10, 40, 10); //width, height, depth (in blocks)
-//Board scaled to fit the LegoGrid()
-const legoBoard = new Box(grid.numOfColumns * Block.cellSize, grid.numOfLayers * Block.cellHeight, grid.numOfRows * Block.cellSize);
-legoBoard.name = "board";
-legoBoard.position.y += (grid.numOfLayers * Block.cellHeight) / 2;
-setColour(legoBoard, "#dbdbdb");
-legoBoard.faces[0].colour = "";
-legoBoard.faces[1].colour = "";
-legoBoard.faces[4].colour = "";
-legoBoard.faces[5].colour = "";
-legoBoard.showOutline = true;
-//creating the virtual grid lines, between each block
-const [gridLinesStart, gridLinesEnd] = grid.generateGridLines(legoBoard);
+const [legoBoard] = setupBoard(grid);
+const [gridLinesStart, gridLinesEnd] = grid.generateGridLines(legoBoard); //creating the virtual grid lines, between each block
+//ANIMATION LOOP
 let boardPoints = new matrix();
 setInterval(() => {
     clearCanvas();
@@ -31,7 +40,7 @@ setInterval(() => {
     camera.render(grid.blockModels.concat([blockIndicator.blockModel]));
     plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is
 }, 16);
-//Blocks
+//BLOCKS
 let currentBlockIndex = 0;
 const blockIndicator = new BlockIndicator();
 blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
@@ -55,7 +64,12 @@ const placeBlockAtIndicator = () => {
         return;
     }
     const newBlock = availableBlocks[currentBlockIndex].clone();
-    grid.placeBlock(newBlock, blockIndicator.position, 50);
+    try {
+        grid.placeBlock(newBlock, blockIndicator.position, 50);
+    }
+    catch (_a) {
+        console.log("Out of bounds");
+    }
 };
 let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
@@ -73,6 +87,9 @@ document.onkeydown = ($e) => {
     }
     else if (key == "2") {
         currentBlockIndex = 1;
+    }
+    else if (key == "3") {
+        currentBlockIndex = 2;
     }
     blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
     updateBlockIndicatorPosition(x, y);
