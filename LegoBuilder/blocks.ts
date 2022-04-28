@@ -1,5 +1,6 @@
 const blocks: { [k: string] : Block } = {}; //the blocks currently on the grid (with their own unique identifier)
 const availableBlocks: Block[] = []; //the blocks which are available to place, to use one you just need to clone a block at a specified index
+const availableColours = ["#C91A09", "#F47B30", "#FED557", "#237841", "#0055BF", "#FC97AC", "#81007B"] //red, orange, yellow, green, blue, pink, purple
 
 //Models - When creating blocks, make each cell 100 * 100 on width and depth, and 150 tall. Do not create a top face sicne that will be filled in by the BlockAttachment
 const setColour = (shape: Shape, colour: string) => {
@@ -7,6 +8,58 @@ const setColour = (shape: Shape, colour: string) => {
         shape.faces[i].colour = colour;
     }
 }
+
+const hexToHSL = (hex: string) => {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)!;
+
+    var r = parseInt(result[1], 16);
+    var g = parseInt(result[2], 16);
+    var b = parseInt(result[3], 16);
+
+    r /= 255, g /= 255, b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h: any, s, l = (max + min) / 2;
+
+    if(max == min){
+        h = s = 0; // achromatic
+    } else {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        
+        (h /= 6);
+    }
+
+    s = s*100;
+    s = Math.round(s);
+    l = l*100;
+    l = Math.round(l);
+    h = Math.round(360*h);
+
+    return {h, s, l};
+}
+const HSLToHex = (hsl: any) => {
+    let [h, s, l] = [hsl.h, hsl.s, hsl.l];
+    l /= 100;
+    const a = s * Math.min(l, 1 - l) / 100;
+    const f = (n: any) => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');   // convert to Hex and prefix "0" if needed
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+}
+const desaturateColour = (colour: string) => {
+    const HSL = hexToHSL(colour); //convert hex -> HSL
+    HSL.s *= 0.5; //reduce saturation
+    return HSLToHex(HSL); //convert back HSL -> hex
+}   
+
+
 class SingleBlockModel extends Shape {
     constructor () {
         super();
@@ -69,6 +122,41 @@ class SidewayStairModel extends Shape {
 
 
 
+
+class BlockIndicator {
+    static generateBlockIndicatorModel = (model: Shape) => { //creates a replica of the model with half the height
+        const blockIndicatorModel = model.clone();
+        for (let i = 0; i != blockIndicatorModel.pointMatrix.width; i += 1) {
+            if (blockIndicatorModel.pointMatrix.getColumn(i)[1] >= Block.cellHeight) {
+                blockIndicatorModel.pointMatrix.setValue(i, 1, blockIndicatorModel.pointMatrix.getColumn(i)[1] * 0.267);
+            }
+        }
+        blockIndicatorModel.updateMatrices();
+        setColour(blockIndicatorModel, "#87ceeb");
+        return blockIndicatorModel;
+    }
+
+    position? = { column: 0, layer: 0, row: 0 };
+    blockModel: Shape;
+
+    syncPosition(grid: LegoGrid) {
+        if (this.position == undefined) {
+            console.error("Block position is undefined, cannont sync");
+            return;
+        }
+
+        //need to convert to xyz
+        const XYZPosition = { x: 0, y: 0, z: 0 };
+        XYZPosition.x = (this.position!.column - grid.numOfColumns / 2) * Block.cellSize;
+        XYZPosition.y = (this.position!.layer) * (Block.cellHeight);
+        XYZPosition.z = (this.position!.row - grid.numOfRows / 2) * Block.cellSize;
+        this.blockModel.position = XYZPosition;
+    }
+
+    constructor () {
+        this.blockModel = BlockIndicator.generateBlockIndicatorModel( new SingleBlockModel() );
+    }
+}
 class Block {
     id: string;
     blockName: string = "";
@@ -145,46 +233,6 @@ class Block {
         return String(newID);
     }
 }
-
-class BlockIndicator {
-    static generateBlockIndicatorModel = (model: Shape) => { //creates a replica of the model with half the height
-        const blockIndicatorModel = model.clone();
-        for (let i = 0; i != blockIndicatorModel.pointMatrix.width; i += 1) {
-            if (blockIndicatorModel.pointMatrix.getColumn(i)[1] >= Block.cellHeight) {
-                blockIndicatorModel.pointMatrix.setValue(i, 1, blockIndicatorModel.pointMatrix.getColumn(i)[1] * 0.267);
-            }
-        }
-        blockIndicatorModel.updateMatrices();
-        setColour(blockIndicatorModel, "#87ceeb");
-        return blockIndicatorModel;
-    }
-
-    position? = { column: 0, layer: 0, row: 0 };
-    blockModel: Shape;
-
-    syncPosition(grid: LegoGrid) {
-        if (this.position == undefined) {
-            console.error("Block position is undefined, cannont sync");
-            return;
-        }
-
-        //need to convert to xyz
-        const XYZPosition = { x: 0, y: 0, z: 0 };
-        XYZPosition.x = (this.position!.column - grid.numOfColumns / 2) * Block.cellSize;
-        XYZPosition.y = (this.position!.layer) * (Block.cellHeight);
-        XYZPosition.z = (this.position!.row - grid.numOfRows / 2) * Block.cellSize;
-        this.blockModel.position = XYZPosition;
-    }
-
-    constructor () {
-        this.blockModel = BlockIndicator.generateBlockIndicatorModel( new SingleBlockModel() );
-    }
-}
-
-
-
-
-
 
 
 

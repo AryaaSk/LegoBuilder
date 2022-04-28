@@ -41,9 +41,12 @@ setInterval(() => {
     plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is
 }, 16);
 //BLOCKS
-let currentBlockIndex = 0;
+let currentBlockIndex = 0; //index in availableBlocks
+let currentBlockColourIndex = 0;
 const updateBlockIndicator = () => {
     blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
+    const indicatorColour = desaturateColour(availableColours[currentBlockColourIndex]);
+    setColour(blockIndicator.blockModel, indicatorColour);
 };
 const blockIndicator = new BlockIndicator();
 updateBlockIndicator();
@@ -67,7 +70,7 @@ const placeBlockAtIndicator = () => {
         return;
     }
     const newBlock = availableBlocks[currentBlockIndex].clone();
-    setColour(newBlock.blockModel, "#FED557"); //can change the colour of the blocks here
+    setColour(newBlock.blockModel, availableColours[currentBlockColourIndex]); //can change the colour of the blocks here
     try {
         grid.placeBlock(newBlock, blockIndicator.position, 50);
     }
@@ -81,19 +84,26 @@ document.onmousemove = ($e) => {
     [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
     updateBlockIndicatorPosition(x, y);
 };
-document.onclick = () => {
+document.getElementById("renderingWindow").onclick = () => {
     placeBlockAtIndicator();
+    updateBlockIndicatorPosition(x, y); //to prevent user from clicking the same point
 };
 //BLOCK SELECTION
 const initializeSelection = () => {
-    const blockSelection = document.getElementById("blockSelection");
-    blockSelection.innerHTML = `
-    <h2><u> Select Block </u></h2>
-    `;
+    const blockSelectionInner = document.getElementById("blockSelectionInner");
+    blockSelectionInner.innerHTML = `<h2><u> Select Block </u></h2>`;
     for (let i = 0; i != availableBlocks.length; i += 1) {
         const block = availableBlocks[i];
-        blockSelection.innerHTML += `
+        blockSelectionInner.innerHTML += `
         <input type="button" class="blockSelectionButton" value="${block.blockName}" id="selectBlock${String(i)}">
+        <br>
+        `;
+    }
+    blockSelectionInner.innerHTML += `<h2><u> Select Colour </u></h2>`;
+    for (let i = 0; i != availableColours.length; i += 1) {
+        const colour = availableColours[i];
+        blockSelectionInner.innerHTML += `
+        <input type="button" class="colourSelectionButton" style="background-color: ${colour}" id="selectColour${String(i)}"></input>
         <br>
         `;
     }
@@ -102,6 +112,13 @@ const initalizeButtonListeners = () => {
     for (let i = 0; i != availableBlocks.length; i += 1) {
         document.getElementById("selectBlock" + String(i)).onclick = () => {
             currentBlockIndex = i;
+            updateBlockIndicator();
+            updateBlockIndicatorPosition(x, y);
+        };
+    }
+    for (let i = 0; i != availableColours.length; i += 1) {
+        document.getElementById("selectColour" + String(i)).onclick = () => {
+            currentBlockColourIndex = i;
             updateBlockIndicator();
             updateBlockIndicatorPosition(x, y);
         };

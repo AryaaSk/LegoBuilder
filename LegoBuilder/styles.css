@@ -7,12 +7,25 @@ body {
     top: 25;
     left: 25;
     bottom: 25;
-    width: 300px;
+    width: 200px;
+
+    
+}
+#blockSelectionInner {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
 
     text-align: center;
     background-color: #dbdbdb;
     border: 1px solid black;
 }
 .blockSelectionButton {
+    margin-bottom: 10px;
+}
+
+.colourSelectionButton {
+    height: 30px;
+    width: 30px;
     margin-bottom: 10px;
 }
