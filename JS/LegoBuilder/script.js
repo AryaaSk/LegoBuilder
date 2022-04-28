@@ -18,47 +18,29 @@ legoBoard.faces[4].colour = "";
 legoBoard.faces[5].colour = "";
 legoBoard.showOutline = true;
 //creating the virtual grid lines, between each block
-const increments = Block.cellSize;
-const baseCorner = legoBoard.pointMatrix.getColumn(0);
-const gridLinesStart = new matrix();
-for (let i = 1; i != grid.numOfColumns; i += 1) {
-    gridLinesStart.addColumn([baseCorner[0] + increments * i, 0, baseCorner[2]]);
-}
-for (let i = 1; i != grid.numOfRows; i += 1) {
-    gridLinesStart.addColumn([baseCorner[0], 0, baseCorner[2] + increments * i]);
-}
-const furthestCorner = legoBoard.pointMatrix.getColumn(5);
-const gridLinesEnd = new matrix();
-for (let i = 1; i != grid.numOfColumns; i += 1) {
-    gridLinesEnd.addColumn([furthestCorner[0] - ((grid.numOfColumns * Block.cellSize) - increments * i), 0, furthestCorner[2]]);
-}
-for (let i = 1; i != grid.numOfRows; i += 1) {
-    gridLinesEnd.addColumn([furthestCorner[0], 0, furthestCorner[2] - ((grid.numOfRows * Block.cellSize) - increments * i)]);
-}
-const blockIndicator = new BlockIndicator();
-let screenObjects = [];
+const [gridLinesStart, gridLinesEnd] = grid.generateGridLines(legoBoard);
+let boardPoints = new matrix();
 setInterval(() => {
     clearCanvas();
     camera.renderGrid();
-    screenObjects = camera.render([legoBoard]);
-    const gridLinesStartTransformed = camera.transformMatrix(gridLinesStart, { x: 0, y: 0, z: 0 });
-    const gridLinesEndTransformed = camera.transformMatrix(gridLinesEnd, { x: 0, y: 0, z: 0 });
+    boardPoints = camera.render([legoBoard])[0].screenPoints;
+    const [gridLinesStartTransformed, gridLinesEndTransformed] = [camera.transformMatrix(gridLinesStart, { x: 0, y: 0, z: 0 }), camera.transformMatrix(gridLinesEnd, { x: 0, y: 0, z: 0 })];
     for (let i = 0; i != gridLinesStartTransformed.width; i += 1) {
         drawLine(gridLinesStartTransformed.getColumn(i), gridLinesEndTransformed.getColumn(i), "black");
     }
-    camera.render(grid.blockModels
-        .concat([blockIndicator.blockModel]));
+    camera.render(grid.blockModels.concat([blockIndicator.blockModel]));
     plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is
 }, 16);
+//Blocks
+let currentBlockIndex = 0;
+const blockIndicator = new BlockIndicator();
+blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
 //show preview of where block will be placed, onmousemove()
-let [x, y] = [0, 0];
-document.onmousemove = ($e) => {
-    //Chrome's Mouse position API is buggy
-    [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
-    if (screenObjects.length == 0) {
+const updateBlockIndicatorPosition = (x, y) => {
+    if (boardPoints.width == 0) {
         return;
     }
-    const mousePosition = grid.getPositionClicked(screenObjects, [x, y]);
+    const mousePosition = grid.getPositionClicked(boardPoints, [x, y]);
     if (mousePosition == undefined) {
         blockIndicator.position = undefined;
         blockIndicator.blockModel.position.x = -1000000;
@@ -68,14 +50,30 @@ document.onmousemove = ($e) => {
     blockIndicator.position = mousePosition;
     blockIndicator.syncPosition(grid);
 };
-document.onclick = () => {
+const placeBlockAtIndicator = () => {
     if (blockIndicator.position == undefined) {
         return;
     }
-    //Just place block where the block indicator is
-    const newSingleBlock = new SingleBlock();
-    grid.placeBlock(newSingleBlock, blockIndicator.position, 50);
+    const newBlock = availableBlocks[currentBlockIndex].clone();
+    grid.placeBlock(newBlock, blockIndicator.position, 50);
 };
-document.onkeydown = () => {
-    blockIndicator.blockModel = generateBlockIndicatorModel(new DoubleBlockModel());
+let [x, y] = [0, 0];
+document.onmousemove = ($e) => {
+    //Chrome's Mouse position API is buggy, watch the green dot, it doesn't follow the cursor
+    [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
+    updateBlockIndicatorPosition(x, y);
+};
+document.onclick = () => {
+    placeBlockAtIndicator();
+};
+document.onkeydown = ($e) => {
+    const key = $e.key.toLowerCase();
+    if (key == "1") {
+        currentBlockIndex = 0;
+    }
+    else if (key == "2") {
+        currentBlockIndex = 1;
+    }
+    blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
+    updateBlockIndicatorPosition(x, y);
 };

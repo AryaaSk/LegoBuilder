@@ -375,6 +375,22 @@ class Shape
     updateMatrices() {
         this.updatePhysicalMatrix();
     }
+
+    clone() {
+        const newShape = new Shape();
+        newShape.name = this.name;
+        newShape.pointMatrix = this.pointMatrix.copy();
+        newShape.rotation = JSON.parse(JSON.stringify(this.rotation));  
+        newShape.scale = this.scale;
+        newShape.physicalMatrix = this.physicalMatrix.copy();
+        newShape.position = JSON.parse(JSON.stringify(this.position));
+        newShape.showOutline = this.showOutline;
+        newShape.showPoints = this.showPoints;
+        newShape.faces = JSON.parse(JSON.stringify(this.faces));
+        newShape.showFaceIndexes = this.showFaceIndexes;
+        
+        return newShape;
+    }
 }
 
 class Box extends Shape

@@ -117,18 +117,14 @@ class LegoGrid {
         }
         return clickableSurfaces;
     }
-    private generateVirtualCenters(screenObjects: { object: Shape, screenPoints: matrix, center: number[]}[], clickableSurfaces: { column: number, layer: number, row: number}[]) {
+    private generateVirtualCenters(boardPoints: matrix, clickableSurfaces: { column: number, layer: number, row: number}[]) {
         const clickableSurfaceCenters: { position: { column: number, layer: number, row: number }, surfaceCenter: number[] }[] = [];
 
         //find distances between the width, height and depth of board, to interpolate values
-        const boardPoints = screenObjects.find(obj => {
-            return obj.object.name == "board"
-        })!
-
-        const baseCorner = boardPoints.screenPoints.getColumn(0);
-        const corner2 = boardPoints.screenPoints.getColumn(1);
-        const corner3 = boardPoints.screenPoints.getColumn(3);  
-        const corner4 = boardPoints.screenPoints.getColumn(4);
+        const baseCorner = boardPoints.getColumn(0);
+        const corner2 = boardPoints.getColumn(1);
+        const corner3 = boardPoints.getColumn(3);  
+        const corner4 = boardPoints.getColumn(4);
 
         //interpolate through these values when they come up in the clickable surfaces
         const widthInterpolationVector = [corner2[0] - baseCorner[0], corner2[1] - baseCorner[1]]
@@ -174,11 +170,11 @@ class LegoGrid {
         }
         return closestSurfaceIndex; //returns index
     }
-    getPositionClicked(screenpoints: { object: Shape, screenPoints: matrix, center: number[]}[], clicked: number[] ) {
+    getPositionClicked(boardPoints: matrix, clicked: number[] ) {
         const clickableSurfaces = this.getClickableSurfaces();
 
         //now we generate the virtual faces for the surfaces
-        const clickableSurfaceCenters = this.generateVirtualCenters(screenpoints, clickableSurfaces);
+        const clickableSurfaceCenters = this.generateVirtualCenters(boardPoints, clickableSurfaces);
 
         //find the point which is closest to the mouse click
         const closestSurfaceIndex = this.findClosestDistance(clickableSurfaceCenters, "surfaceCenter", clicked);
@@ -187,6 +183,29 @@ class LegoGrid {
         else {
             return clickableSurfaceCenters[closestSurfaceIndex].position;
         }
+    }
+
+    generateGridLines (board: Shape) {
+        const increments = Block.cellSize;
+        const baseCorner = board.pointMatrix.getColumn(0);
+        const gridLinesStart = new matrix();
+        for (let i = 1; i != this.numOfColumns; i += 1) {
+            gridLinesStart.addColumn( [ baseCorner[0] + increments * i, 0, baseCorner[2] ] )
+        }
+        for (let i = 1; i != this.numOfRows; i += 1) {
+            gridLinesStart.addColumn( [ baseCorner[0], 0, baseCorner[2] + increments * i ] )
+        }
+
+        const furthestCorner = board.pointMatrix.getColumn(5);
+        const gridLinesEnd = new matrix();
+        for (let i = 1; i != this.numOfColumns; i += 1) {
+            gridLinesEnd.addColumn( [ furthestCorner[0] - ((this.numOfColumns * Block.cellSize) - increments * i), 0, furthestCorner[2] ] )
+        }
+        for (let i = 1; i != this.numOfRows; i += 1) {
+            gridLinesEnd.addColumn( [ furthestCorner[0], 0, furthestCorner[2] - ((this.numOfRows * Block.cellSize) - increments * i) ] )
+        }
+
+        return [gridLinesStart, gridLinesEnd];
     }
 
     constructor() { }

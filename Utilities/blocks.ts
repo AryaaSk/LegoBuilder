@@ -1,3 +1,6 @@
+const blocks: { [k: string] : Block } = {}; //the blocks currently on the grid (with their own unique identifier)
+const availableBlocks: Block[] = [];
+
 //Models
 class SingleBlockModel extends Shape {
     constructor () {
@@ -42,8 +45,6 @@ class DoubleBlockModel extends Shape {
 
 
 
-
-const blocks: { [k: string] : Block } = {}; //the blocks currently on the grid (with their own unique identifier)
 class Block {
     id: string;
     blockName: string = "";
@@ -62,6 +63,17 @@ class Block {
         grid.cleanGrid();
     }
 
+    clone() {
+        const newBlock = new Block();
+        newBlock.id = Block.generateID();
+        newBlock.blockName = this.blockName;
+        newBlock.position = undefined;
+        newBlock.gridModel = JSON.parse(JSON.stringify(this.gridModel));
+        newBlock.blockModel = this.blockModel.clone();
+        newBlock.blockModel.name = newBlock.id;
+        return newBlock
+    }
+
     static cellSize = 100; //define the size of each cell here, then make the block models the same size
     static cellHeight = 150;
 
@@ -77,21 +89,22 @@ class Block {
     }
 }
 
-const generateBlockIndicatorModel = (model: Shape) => { //creates a replica of the model with half the height
-    const newModel = new Shape(); //only copying 
-    newModel.faces = model.faces;
-    newModel.pointMatrix = model.pointMatrix.copy();
-    for (let i = 0; i != newModel.pointMatrix.width; i += 1) {
-        if (newModel.pointMatrix.getColumn(i)[1] == Block.cellHeight) {
-            newModel.pointMatrix.setValue(i, 1, Block.cellHeight * 0.267);
-        }
-    }
-    newModel.updateMatrices();
-    setColour(newModel, "#87ceeb");
-    newModel.showOutline = true;
-    return newModel;
-}
 class BlockIndicator {
+    static generateBlockIndicatorModel = (model: Shape) => { //creates a replica of the model with half the height
+        const newModel = new Shape();
+        newModel.faces = model.faces;
+        newModel.pointMatrix = model.pointMatrix.copy();
+        for (let i = 0; i != newModel.pointMatrix.width; i += 1) {
+            if (newModel.pointMatrix.getColumn(i)[1] == Block.cellHeight) {
+                newModel.pointMatrix.setValue(i, 1, Block.cellHeight * 0.267);
+            }
+        }
+        newModel.updateMatrices();
+        setColour(newModel, "#87ceeb");
+        newModel.showOutline = true;
+        return newModel;
+    }
+
     position? = { column: 0, layer: 0, row: 0 };
     blockModel: Shape;
 
@@ -110,29 +123,41 @@ class BlockIndicator {
     }
 
     constructor () {
-        this.blockModel = generateBlockIndicatorModel( new SingleBlockModel() );
+        this.blockModel = BlockIndicator.generateBlockIndicatorModel( new SingleBlockModel() );
     }
 }
 
+
+
+
+
+
+
+
+
+
+//Actual blocks
 class SingleBlock extends Block {
     constructor () {
         super();
 
         this.gridModel = [{ layer: 0, row: 0, column: 0 }];
         this.blockModel = new SingleBlockModel();
-        this.blockName = "singleBlock";
+        this.blockName = "Single Block";
         this.blockModel.showOutline = true;
         this.blockModel.name = this.id;
     }
 }
+availableBlocks.push( new SingleBlock() );
 class DoubleBlock extends Block {
     constructor () {
         super();
 
         this.gridModel = [{ layer: 0, row: 0, column: 0 }, { layer: 0, row: 0, column: 1 }];
         this.blockModel = new DoubleBlockModel();
-        this.blockName = "doubleBlock";
+        this.blockName = "Double Block";
         this.blockModel.showOutline = true;
         this.blockModel.name = this.id;
     }
 }
+availableBlocks.push( new DoubleBlock() );
