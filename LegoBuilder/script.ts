@@ -82,6 +82,7 @@ const updateBlockIndicatorPosition = (x: number, y: number) => {
 const placeBlockAtIndicator = () => { //Just place block where the block indicator is
     if (blockIndicator.position == undefined) { return; }
     const newBlock = availableBlocks[currentBlockIndex].clone();
+    setColour(newBlock.blockModel, "#FED557"); //can change the colour of the blocks here
 
     try { grid.placeBlock(newBlock, blockIndicator.position, 50); }
     catch { console.log("Out of bounds") }

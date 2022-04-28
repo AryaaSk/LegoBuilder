@@ -67,6 +67,7 @@ const placeBlockAtIndicator = () => {
         return;
     }
     const newBlock = availableBlocks[currentBlockIndex].clone();
+    setColour(newBlock.blockModel, "#FED557"); //can change the colour of the blocks here
     try {
         grid.placeBlock(newBlock, blockIndicator.position, 50);
     }
