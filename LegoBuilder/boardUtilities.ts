@@ -51,7 +51,7 @@ class LegoGrid {
         }
     }
 
-    private generateXYZ(column: number, layer: number, row: number) {
+    generateXYZ(column: number, layer: number, row: number) {
         const returnXYZ = { x: 0, y: 0, z: 0 };
         returnXYZ.x = (column - this.numOfColumns / 2) * Block.cellSize;
         returnXYZ.y = (layer) * (Block.cellHeight);
@@ -77,7 +77,7 @@ class LegoGrid {
         const blockPosition = this.generateXYZ( position.column, position.layer, position.row );
 
         block.blockModel.position = { x: blockPosition.x, y: this.numOfLayers * Block.cellHeight, z: blockPosition.z };
-        this.blockModels.push( block.blockModel )
+        this.blockModels.push( block.blockModel );
 
         const blockIndex = this.blockModels.length - 1;
         const repeat = (1 / speed) * 2500;

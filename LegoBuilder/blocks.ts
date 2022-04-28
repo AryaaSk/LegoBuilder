@@ -1,13 +1,12 @@
 const blocks: { [k: string] : Block } = {}; //the blocks currently on the grid (with their own unique identifier)
 const availableBlocks: Block[] = []; //the blocks which are available to place, to use one you just need to clone a block at a specified index
 
-//Models
+//Models - When creating blocks, make each cell 100 * 100 on width and depth, and 150 tall. Do not create a top face sicne that will be filled in by the BlockAttachment
 const setColour = (shape: Shape, colour: string) => {
     for (let i = 0; i != shape.faces.length; i += 1) {
         shape.faces[i].colour = colour;
     }
 }
-
 class SingleBlockModel extends Shape {
     constructor () {
         super();
@@ -24,7 +23,7 @@ class SingleBlockModel extends Shape {
         this.updateMatrices();
     }
     setFaces() {
-        this.faces = [{pointIndexes:[0,1,2,3],colour:"#c4c4c4"},{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[1,2,6,5],colour:"#c4c4c4"},{pointIndexes:[4,5,6,7],colour:"#c4c4c4"},{pointIndexes:[0,4,7,3],colour:"#c4c4c4"},{pointIndexes:[2,3,7,6],colour:"#c4c4c4"}];
+        this.faces = [{pointIndexes:[0,1,2,3],colour:"#c4c4c4"},{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[1,2,6,5],colour:"#c4c4c4"},{pointIndexes:[0,4,7,3],colour:"#c4c4c4"},{pointIndexes:[2,3,7,6],colour:"#c4c4c4"}];
     }
 }
 class DoubleBlockModel extends Shape {
@@ -43,7 +42,7 @@ class DoubleBlockModel extends Shape {
         this.updateMatrices();
     }
     setFaces() {
-        this.faces = [{pointIndexes:[0,1,2,3],colour:"#c4c4c4"},{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[1,2,6,5],colour:"#c4c4c4"},{pointIndexes:[4,5,6,7],colour:"#c4c4c4"},{pointIndexes:[0,4,7,3],colour:"#c4c4c4"},{pointIndexes:[2,3,7,6],colour:"#c4c4c4"}];
+        this.faces = [{pointIndexes:[0,1,2,3],colour:"#c4c4c4"},{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[1,2,6,5],colour:"#c4c4c4"},{pointIndexes:[0,4,7,3],colour:"#c4c4c4"},{pointIndexes:[2,3,7,6],colour:"#c4c4c4"}];
     }
 }
 class SidewayStairModel extends Shape {
@@ -62,7 +61,7 @@ class SidewayStairModel extends Shape {
         this.updateMatrices();
     }
     setFaces() {
-        this.faces = [{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[5,6,2,1],colour:"#c4c4c4"},{pointIndexes:[6,9,8,2],colour:"#c4c4c4"},{pointIndexes:[9,11,10,8],colour:"#c4c4c4"},{pointIndexes:[11,7,3,10],colour:"#c4c4c4"},{pointIndexes:[7,4,0,3],colour:"#c4c4c4"},{pointIndexes:[5,4,7,11,9,6],colour:"#c4c4c4"},{pointIndexes:[1,2,8,10,3,0],colour:"#c4c4c4"}];
+        this.faces = [{pointIndexes:[0,1,5,4],colour:"#c4c4c4"},{pointIndexes:[5,6,2,1],colour:"#c4c4c4"},{pointIndexes:[6,9,8,2],colour:"#c4c4c4"},{pointIndexes:[9,11,10,8],colour:"#c4c4c4"},{pointIndexes:[11,7,3,10],colour:"#c4c4c4"},{pointIndexes:[7,4,0,3],colour:"#c4c4c4"},{pointIndexes:[1,2,8,10,3,0],colour:"#c4c4c4"}];
     }
 }
 
@@ -83,8 +82,37 @@ class Block {
         blocks[this.id] = this;
     }
     configureBlockModel () {
-        this.blockModel.showOutline = true;
         this.blockModel.name = this.id;
+        this.blockModel.showOutline = true;
+
+        //add the blockAttachment to the block shape, based on the gridModel, basically combining shapes here
+        for (const cell of this.gridModel) {
+            const blockAttachmentTranslation = Vector((Block.cellSize * cell.column) + (Block.cellSize / 2), (Block.cellHeight) * (cell.layer + 1), (Block.cellSize * cell.row) + (Block.cellSize / 2));
+
+            const points = [[-20,0,-20],[20,0,-20],[20,0,20],[-20,0,20],[-20,20,-20],[20,20,-20],[20,20,20],[-20,20,20],[-49.5,0,-49.5],[49.5,0,-49.5],[49.5,0,49.5],[-49.5,0,49.5]];
+            const blockAttachmentFaces: { pointIndexes: number[], colour: string, outline?: boolean }[] = [{pointIndexes:[4,5,1,0],colour:"#c4c4c4"},{pointIndexes:[5,6,2,1],colour:"#c4c4c4"},{pointIndexes:[2,3,7,6],colour:"#c4c4c4"},{pointIndexes:[0,3,7,4],colour:"#c4c4c4"},{pointIndexes:[5,6,7,4],colour:"#c4c4c4"},{pointIndexes:[8,0,1,9],colour:"#c4c4c4"},{pointIndexes:[9,1,2,10],colour:"#c4c4c4"},{pointIndexes:[10,2,3,11],colour:"#c4c4c4"},{pointIndexes:[11,3,0,8],colour:"#c4c4c4"}];
+            blockAttachmentFaces[0].outline = true;
+            blockAttachmentFaces[1].outline = true;
+            blockAttachmentFaces[2].outline = true;
+            blockAttachmentFaces[3].outline = true;
+            blockAttachmentFaces[4].outline = true;
+
+            //first attach a singular blockAttachment
+            const pointIndexOffset = this.blockModel.pointMatrix.width;
+            for (const point of points) {
+                point[0] += blockAttachmentTranslation.x;
+                point[1] += blockAttachmentTranslation.y;
+                point[2] += blockAttachmentTranslation.z;
+                this.blockModel.pointMatrix.addColumn(point);
+            }
+            for (let i = 0; i != blockAttachmentFaces.length; i += 1) {
+                for (let a = 0; a != blockAttachmentFaces[i].pointIndexes.length; a += 1) {
+                    blockAttachmentFaces[i].pointIndexes[a] += pointIndexOffset;
+                }
+            }
+            this.blockModel.faces = this.blockModel.faces.concat(blockAttachmentFaces);
+        }
+        this.blockModel.updateMatrices();
     }
 
     removeBlock(grid: LegoGrid) {
@@ -120,18 +148,15 @@ class Block {
 
 class BlockIndicator {
     static generateBlockIndicatorModel = (model: Shape) => { //creates a replica of the model with half the height
-        const newModel = new Shape();
-        newModel.faces = model.faces;
-        newModel.pointMatrix = model.pointMatrix.copy();
-        for (let i = 0; i != newModel.pointMatrix.width; i += 1) {
-            if (newModel.pointMatrix.getColumn(i)[1] == Block.cellHeight) {
-                newModel.pointMatrix.setValue(i, 1, Block.cellHeight * 0.267);
+        const blockIndicatorModel = model.clone();
+        for (let i = 0; i != blockIndicatorModel.pointMatrix.width; i += 1) {
+            if (blockIndicatorModel.pointMatrix.getColumn(i)[1] >= Block.cellHeight) {
+                blockIndicatorModel.pointMatrix.setValue(i, 1, blockIndicatorModel.pointMatrix.getColumn(i)[1] * 0.267);
             }
         }
-        newModel.updateMatrices();
-        setColour(newModel, "#87ceeb");
-        newModel.showOutline = true;
-        return newModel;
+        blockIndicatorModel.updateMatrices();
+        setColour(blockIndicatorModel, "#87ceeb");
+        return blockIndicatorModel;
     }
 
     position? = { column: 0, layer: 0, row: 0 };
