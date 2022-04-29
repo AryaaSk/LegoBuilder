@@ -88,7 +88,6 @@ const placeBlockAtIndicator = () => {
     catch (_a) {
         console.log("Out of bounds");
     }
-    console.log(grid.data);
 };
 let [x, y] = [0, 0];
 document.onmousemove = ($e) => {

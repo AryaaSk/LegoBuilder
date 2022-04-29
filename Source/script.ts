@@ -102,7 +102,6 @@ const placeBlockAtIndicator = () => { //Just place block where the block indicat
 
     try { grid.placeBlock(newBlock, blockIndicator.position, currentRotation, 50); }
     catch { console.log("Out of bounds") }
-    console.log(grid.data);
 }
 
 let [x, y] = [0, 0];
