@@ -367,17 +367,14 @@ class Shape
         this.position.z += translationVector.z;
     }
 
-    set showOutline(value: boolean) {
-        //loop through faces and set outline to true / false
-        if (value == true) {
-            for (let i = 0; i != this.faces.length; i += 1) {
-                this.faces[i].outline = true;
-            }
+    showOutline() {
+        for (let i = 0; i != this.faces.length; i += 1) {
+            this.faces[i].outline = true;
         }
-        else if (value == false) {
-            for (let i = 0; i != this.faces.length; i += 1) {
-                this.faces[i].outline = false;
-            }
+    }
+    hideOutline() {
+        for (let i = 0; i != this.faces.length; i += 1) {
+            this.faces[i].outline = false;
         }
     }
 

@@ -138,7 +138,7 @@ class Block {
     }
     configureBlockModel () {
         this.blockModel.name = this.id;
-        this.blockModel.showOutline = true;
+        this.blockModel.showOutline();
 
         //add the blockAttachment to the block shape, based on the gridModel, basically combining shapes here
         for (const cell of this.gridModel) {

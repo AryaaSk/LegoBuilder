@@ -18,7 +18,7 @@ const setupBoard = (grid) => {
     legoBoard.position.y += (grid.numOfLayers * Block.cellHeight) / 2;
     setColour(legoBoard, "");
     legoBoard.faces[3].colour = "#dbdbdb";
-    legoBoard.showOutline = true;
+    legoBoard.showOutline();
     return [legoBoard];
 };
 //MAIN SETUP
