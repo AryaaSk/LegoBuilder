@@ -1,7 +1,7 @@
 # Lego Builder
+### A project to learn about virtual grids, and to test my 3D Engine
 
-## Another project to test my 3D Engine
-URL: [Lego Builder](https://aryaask.github.io/LegoBuilder/Source)
+URL: [https://aryaask.github.io/LegoBuilder/Source](https://aryaask.github.io/LegoBuilder/Source)
 
 Here are some previews:
 
@@ -34,7 +34,7 @@ The block attachment is added dynamically when constructing the block model, it 
 
 
 ### The grid
-The grid is stored as a 3D array, you specify the width, height and depth when initializing the grid, and then you just use functions on top of the LegoGrid class. The grid will convert the grid position, in format {column, layer, row}, into actual 3D coordinates by calculating the distance between 2 corners of the board, and interpolating based on the number of columns / layers / rows.
+The grid is stored as a 3D array, you specify the width, height and depth when initializing the grid, and then you just use functions on top of the LegoGrid class. The grid will convert the grid position, in format {column, layer, row}, into actual 3D coordinates using the virtual grid, look above.
 
 To render a block:
 1. When creating a new block, it gets a unique id, and is added to a dictionary of blocks, called *blocks*. This dictionary contains every block currently placed on the grid.
