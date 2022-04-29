@@ -32,7 +32,8 @@ body {
 
 #rotateBlock {
     cursor: pointer;
-    color: rgb(3, 3, 211);
+    color: rgb(0, 0, 255);
+    text-decoration: underline;
 }
 #rotateBlock:hover {
     text-decoration: underline;

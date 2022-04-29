@@ -41,7 +41,7 @@ setInterval(() => {
     plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is
 }, 16);
 //BLOCKS
-let currentBlockIndex = 2; //index in availableBlocks
+let currentBlockIndex = 0; //index in availableBlocks
 let currentBlockColourIndex = 0;
 let currentRotation = 0;
 const updateBlockIndicator = () => {

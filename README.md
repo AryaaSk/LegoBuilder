@@ -1,9 +1,11 @@
 # Lego Builder
 
-## General Idea
-- Start with an empty board, no need to use a checkerboard.
-- User can click on a face, and it will place a block there, will need an raycasting algorithm that snaps to the nearest grid cell
-- There should also be a drop animation when placing a block
+## Another project to test my 3D Engine
 
-## Blocks
-- Will start with a 1 * 1 * 1 block model, and eventually add more blocks.
+URL: [Insert Github Pages URL here]
+
+Here are some previews:
+
+![Preview 1](Previews/Preview1.png?raw=true)
+
+![Preview 2](Previews/Preview2.png?raw=true)
