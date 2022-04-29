@@ -43,7 +43,6 @@ const [gridLinesStart, gridLinesEnd] = grid.generateGridLines( legoBoard ); //cr
 let boardPoints: matrix = new matrix();
 setInterval(() => {
     clearCanvas();
-    camera.renderGrid();
 
     boardPoints = camera.render([legoBoard])[0].screenPoints;
 
