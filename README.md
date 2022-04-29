@@ -42,6 +42,3 @@ To render a block:
 3. Once you have the position in the grid, you can convert that to an actual position using the formula above, then just render the block as a model using camera.render();
 
 - To prevent blocks from creating copies of themselves, I have made it so that once you have placed a block you cannot replace it, it must be deleted and a new block must be placed.
-
-## TODO:
-- Add delete block option, I actally already have the function, but I'm not 100% sure how to implement it in a user-friendly way.
