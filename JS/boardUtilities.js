@@ -1,4 +1,5 @@
 "use strict";
+const distanceBetween2D = (p1, p2) => { return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2); };
 const generateXYZ = (position, rotation, numOfColumns, numOfRows) => {
     const returnXYZ = { x: 0, y: 0, z: 0 };
     returnXYZ.x = (position.column - numOfColumns / 2) * Block.cellSize;
@@ -57,6 +58,9 @@ class LegoGrid {
                                 while (i != this.blockModels.length) {
                                     if (this.blockModels[i].name == this.data[layer][row][column]) {
                                         this.blockModels.splice(i, 1);
+                                    }
+                                    else {
+                                        i += 1;
                                     }
                                 }
                             }
@@ -131,7 +135,6 @@ class LegoGrid {
                 counter += 1;
             }, 1);
         };
-        this.distanceBetween2D = (p1, p2) => { return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2); };
     }
     getClickableSurfaces() {
         //first find all clickable surfaces, which is just the tops of any blocks, or the board. Go through each column + row in the board, and keep going down until you hit something
@@ -187,7 +190,7 @@ class LegoGrid {
     findClosestDistance(list, positionKey, positionPoint) {
         let closestSurfaceIndex = 0;
         for (let i = 0; i != list.length; i += 1) {
-            if (this.distanceBetween2D(positionPoint, list[i][positionKey]) < this.distanceBetween2D(positionPoint, list[closestSurfaceIndex][positionKey])) {
+            if (distanceBetween2D(positionPoint, list[i][positionKey]) < distanceBetween2D(positionPoint, list[closestSurfaceIndex][positionKey])) {
                 closestSurfaceIndex = i;
             }
         }
@@ -199,7 +202,7 @@ class LegoGrid {
         const clickableSurfaceCenters = this.generateVirtualCenters(boardPoints, clickableSurfaces);
         //find the point which is closest to the mouse click
         const closestSurfaceIndex = this.findClosestDistance(clickableSurfaceCenters, "surfaceCenter", clicked);
-        if (this.distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) {
+        if (distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) {
             return undefined;
         }
         else {

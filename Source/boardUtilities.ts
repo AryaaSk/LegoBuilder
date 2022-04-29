@@ -1,3 +1,5 @@
+const distanceBetween2D = (p1: number[], p2: number[]) => { return Math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2); }
+
 const generateXYZ = ( position: { column: number, layer: number, row: number }, rotation: 0 | 90 | 180 | 270, numOfColumns: number, numOfRows: number ) => {
     const returnXYZ = { x: 0, y: 0, z: 0 };
     returnXYZ.x = (position.column - numOfColumns / 2) * Block.cellSize;
@@ -60,6 +62,7 @@ class LegoGrid {
                                 if (this.blockModels[i].name == this.data[layer][row][column]) {
                                     this.blockModels.splice(i, 1);
                                 }
+                                else { i += 1; }
                             }
                         }
                         catch {}
@@ -199,12 +202,11 @@ class LegoGrid {
 
         return clickableSurfaceCenters;
     }
-    private distanceBetween2D = (p1: number[], p2: number[]) => { return Math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2); }
 
     private findClosestDistance(list: any[], positionKey: string, positionPoint: number[]) {
         let closestSurfaceIndex = 0;
         for (let i = 0; i != list.length; i += 1) {
-            if (this.distanceBetween2D(positionPoint, list[i][positionKey]) < this.distanceBetween2D(positionPoint, list[closestSurfaceIndex][positionKey])) {
+            if (distanceBetween2D(positionPoint, list[i][positionKey]) < distanceBetween2D(positionPoint, list[closestSurfaceIndex][positionKey])) {
                 closestSurfaceIndex = i;
             }
         }
@@ -219,7 +221,7 @@ class LegoGrid {
         //find the point which is closest to the mouse click
         const closestSurfaceIndex = this.findClosestDistance(clickableSurfaceCenters, "surfaceCenter", clicked);
 
-        if (this.distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) { return undefined; }
+        if (distanceBetween2D(clicked, clickableSurfaceCenters[closestSurfaceIndex].surfaceCenter) > Block.cellSize) { return undefined; }
         else {
             return clickableSurfaceCenters[closestSurfaceIndex].position;
         }

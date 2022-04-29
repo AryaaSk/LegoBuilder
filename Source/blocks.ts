@@ -74,7 +74,7 @@ class SidewayStairModel extends Shape {
 
 
 class BlockIndicator {
-    static generateBlockIndicatorModel = (model: Shape) => { //creates a replica of the model with half the height
+    static generateBlockIndicatorModel = (model: Shape) => {
         const blockIndicatorModel = model.clone();
         /* //No need to make the block indicator shorter since it is already transparant
         for (let i = 0; i != blockIndicatorModel.pointMatrix.width; i += 1) {

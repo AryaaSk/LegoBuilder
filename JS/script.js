@@ -44,15 +44,17 @@ let currentBlockIndex = 0; //index in availableBlocks
 let currentBlockColourIndex = 0;
 let currentRotation = 0;
 const updateBlockIndicator = () => {
-    if (currentBlockIndex == -1) {
+    if (currentBlockIndex == -1) { //block indicator is hidden
         setColour(blockIndicator.blockModel, "");
         return;
     }
     blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
+    blockIndicator.blockModel.name = "indicator";
     const indicatorColour = availableColours[currentBlockColourIndex] + "60"; //opacity value
     setColour(blockIndicator.blockModel, indicatorColour);
 };
 const blockIndicator = new BlockIndicator();
+blockIndicator.blockModel.name = "indicator";
 updateBlockIndicator();
 //show preview of where block will be placed, onmousemove()
 const updateBlockIndicatorPosition = (x, y) => {
@@ -89,6 +91,32 @@ const placeBlockAtIndicator = () => {
         console.log("Out of bounds");
     }
 };
+const deleteBlock = (x, y) => {
+    const cursorPosition = [x, y];
+    const renderedBlocks = camera.render(grid.blockModels.concat([blockIndicator.blockModel])); //don't want to assign a variable every frame for performance
+    //find block closest to (x, y) using center property (just ignore z position), ignore when name == "indicator"
+    for (let i = 0; i != renderedBlocks.length; i += 1) {
+        if (renderedBlocks[i].object.name == "indicator") {
+            renderedBlocks.splice(i, 1);
+            break;
+        }
+    }
+    if (renderedBlocks.length == 0) {
+        return;
+    } //there are no other blocks
+    let closestBlockIndex = 0;
+    for (let i = 0; i != renderedBlocks.length; i += 1) {
+        if (distanceBetween2D(renderedBlocks[i].center, cursorPosition) < distanceBetween2D(renderedBlocks[closestBlockIndex].center, cursorPosition)) {
+            closestBlockIndex = i;
+        }
+    }
+    if (distanceBetween2D(renderedBlocks[closestBlockIndex].center, cursorPosition) > Block.cellSize) {
+        return;
+    }
+    //now just get the block's id, and run the remove() function
+    const blockID = renderedBlocks[closestBlockIndex].object.name;
+    blocks[blockID].removeBlock(grid);
+};
 let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
     //Chrome's Mouse position API is buggy, watch the green dot, it doesn't follow the cursor
@@ -119,7 +147,8 @@ const initializeSelection = () => {
         <br>
         `;
     }
-    blockSelectionInner.innerHTML += `<h2 id="rotateBlock"> Rotate Block (R) </h2>`;
+    blockSelectionInner.innerHTML += `<h4> Press R to rotate the current block </h4>`;
+    blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`;
 };
 const initalizeButtonListeners = () => {
     document.getElementById("selectNone").onclick = () => {
@@ -145,9 +174,9 @@ const initalizeButtonListeners = () => {
         if (key == "r") {
             rotateIndicator();
         }
-    };
-    document.getElementById("rotateBlock").onclick = () => {
-        rotateIndicator();
+        else if (key == "delete" || key == "backspace") {
+            deleteBlock(x, y);
+        }
     };
 };
 updateBlockIndicatorPosition(x, y);
