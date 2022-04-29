@@ -41,18 +41,23 @@ setInterval(() => {
     plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is
 }, 16);
 //BLOCKS
-let currentBlockIndex = 0; //index in availableBlocks
+let currentBlockIndex = 2; //index in availableBlocks
 let currentBlockColourIndex = 0;
+let currentRotation = 0;
 const updateBlockIndicator = () => {
+    if (currentBlockIndex == -1) {
+        setColour(blockIndicator.blockModel, "");
+        return;
+    }
     blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
-    const indicatorColour = desaturateColour(availableColours[currentBlockColourIndex]);
+    const indicatorColour = availableColours[currentBlockColourIndex] + "60"; //opacity value
     setColour(blockIndicator.blockModel, indicatorColour);
 };
 const blockIndicator = new BlockIndicator();
 updateBlockIndicator();
 //show preview of where block will be placed, onmousemove()
 const updateBlockIndicatorPosition = (x, y) => {
-    if (boardPoints.width == 0) {
+    if (boardPoints.width == 0 || currentBlockIndex == -1) {
         return;
     }
     const mousePosition = grid.getPositionClicked(boardPoints, [x, y]);
@@ -63,20 +68,28 @@ const updateBlockIndicatorPosition = (x, y) => {
     }
     ;
     blockIndicator.position = mousePosition;
-    blockIndicator.syncPosition(grid);
+    blockIndicator.syncPosition(grid, currentRotation);
+};
+const rotateIndicator = () => {
+    currentRotation += 90;
+    if (currentRotation == 360) {
+        currentRotation = 0;
+    }
+    updateBlockIndicatorPosition(x, y);
 };
 const placeBlockAtIndicator = () => {
-    if (blockIndicator.position == undefined) {
+    if (blockIndicator.position == undefined || currentBlockIndex == -1) {
         return;
     }
     const newBlock = availableBlocks[currentBlockIndex].clone();
     setColour(newBlock.blockModel, availableColours[currentBlockColourIndex]); //can change the colour of the blocks here
     try {
-        grid.placeBlock(newBlock, blockIndicator.position, 50);
+        grid.placeBlock(newBlock, blockIndicator.position, currentRotation, 50);
     }
     catch (_a) {
         console.log("Out of bounds");
     }
+    console.log(grid.data);
 };
 let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
@@ -92,6 +105,7 @@ document.getElementById("renderingWindow").onclick = () => {
 const initializeSelection = () => {
     const blockSelectionInner = document.getElementById("blockSelectionInner");
     blockSelectionInner.innerHTML = `<h2><u> Select Block </u></h2>`;
+    blockSelectionInner.innerHTML += `<input type="button" class="blockSelectionButton" value="None" id="selectNone"> <br>`;
     for (let i = 0; i != availableBlocks.length; i += 1) {
         const block = availableBlocks[i];
         blockSelectionInner.innerHTML += `
@@ -107,8 +121,13 @@ const initializeSelection = () => {
         <br>
         `;
     }
+    blockSelectionInner.innerHTML += `<h2 id="rotateBlock"> Rotate Block (R) </h2>`;
 };
 const initalizeButtonListeners = () => {
+    document.getElementById("selectNone").onclick = () => {
+        currentBlockIndex = -1;
+        updateBlockIndicator();
+    };
     for (let i = 0; i != availableBlocks.length; i += 1) {
         document.getElementById("selectBlock" + String(i)).onclick = () => {
             currentBlockIndex = i;
@@ -123,6 +142,16 @@ const initalizeButtonListeners = () => {
             updateBlockIndicatorPosition(x, y);
         };
     }
+    document.onkeydown = ($e) => {
+        const key = $e.key.toLowerCase();
+        if (key == "r") {
+            rotateIndicator();
+        }
+    };
+    document.getElementById("rotateBlock").onclick = () => {
+        rotateIndicator();
+    };
 };
+updateBlockIndicatorPosition(x, y);
 initializeSelection();
 initalizeButtonListeners();

@@ -126,20 +126,21 @@ class SidewayStairModel extends Shape {
 class BlockIndicator {
     static generateBlockIndicatorModel = (model: Shape) => { //creates a replica of the model with half the height
         const blockIndicatorModel = model.clone();
+        /*
         for (let i = 0; i != blockIndicatorModel.pointMatrix.width; i += 1) {
             if (blockIndicatorModel.pointMatrix.getColumn(i)[1] >= Block.cellHeight) {
                 blockIndicatorModel.pointMatrix.setValue(i, 1, blockIndicatorModel.pointMatrix.getColumn(i)[1] * 0.267);
             }
         }
+        */
         blockIndicatorModel.updateMatrices();
-        setColour(blockIndicatorModel, "#87ceeb");
         return blockIndicatorModel;
     }
 
     position? = { column: 0, layer: 0, row: 0 };
     blockModel: Shape;
 
-    syncPosition(grid: LegoGrid) {
+    syncPosition(grid: LegoGrid, rotation: 0 | 90 | 180 | 270) {
         if (this.position == undefined) {
             console.error("Block position is undefined, cannont sync");
             return;
@@ -151,6 +152,22 @@ class BlockIndicator {
         XYZPosition.y = (this.position!.layer) * (Block.cellHeight);
         XYZPosition.z = (this.position!.row - grid.numOfRows / 2) * Block.cellSize;
         this.blockModel.position = XYZPosition;
+
+        this.blockModel.rotation.y = rotation;
+        this.blockModel.updateQuaternion();
+
+        //also need to attach it to a different corner depending on which way it is rotated
+        if (rotation == 0) { } //bottom left, do nothing
+        else if (rotation == 90) { //top left
+            XYZPosition.z += Block.cellSize;
+        }
+        else if (rotation == 180) { //top right
+            XYZPosition.x += Block.cellSize;
+            XYZPosition.z += Block.cellSize;
+        }
+        else if (rotation == 270) { //bottom right
+            XYZPosition.x += Block.cellSize;
+        }
     }
 
     constructor () {

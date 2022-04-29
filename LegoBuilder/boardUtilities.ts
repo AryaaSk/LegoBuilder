@@ -51,21 +51,64 @@ class LegoGrid {
         }
     }
 
-    generateXYZ(column: number, layer: number, row: number) {
+    generateXYZ(column: number, layer: number, row: number, rotation: 0 | 90 | 180 | 270) {
         const returnXYZ = { x: 0, y: 0, z: 0 };
         returnXYZ.x = (column - this.numOfColumns / 2) * Block.cellSize;
         returnXYZ.y = (layer) * (Block.cellHeight);
         returnXYZ.z = (row - this.numOfRows / 2) * Block.cellSize;    
+
+        //need to attach it to a different corner depending on which way it is rotated
+        if (rotation == 0) { } //bottom left, do nothing
+        else if (rotation == 90) { //top left
+            returnXYZ.z += Block.cellSize;
+        }
+        else if (rotation == 180) { //top right
+            returnXYZ.x += Block.cellSize;
+            returnXYZ.z += Block.cellSize;
+        }
+        else if (rotation == 270) { //bottom right
+            console.log("triggering")
+            returnXYZ.x += Block.cellSize;
+        }
         return returnXYZ;
     }
 
     blockModels: Shape[] = [];
-    placeBlock = (block: Block , position: { column: number, layer: number, row: number }, speed: number) => {
+    placeBlock = (block: Block , position: { column: number, layer: number, row: number }, rotation: 0 | 90 | 180 | 270, speed: number) => {
         if (block.position != undefined) { console.error("Cannot replace block, once you have placed it must be removed and recreated"); return; }
         block.position = position;
 
+        //need to generate a new block.gridModel, to account for the rotation
+        let rotatedGridModel: { layer: number, row: number, column: number }[] = [];
+        rotatedGridModel = JSON.parse(JSON.stringify(block.gridModel));
+        if (rotation == 0) { }
+        else if (rotation == 90) {
+            //column = row, row = column * -1
+            for (let i = 0; i != rotatedGridModel.length; i += 1) {
+                const tempColumn = rotatedGridModel[i].column;
+                rotatedGridModel[i].column = rotatedGridModel[i].row;
+                rotatedGridModel[i].row = tempColumn * -1;
+            }
+        }
+        else if (rotation == 180) {
+            //column = row * -1, row = column * -1
+            for (let i = 0; i != rotatedGridModel.length; i += 1) {
+                const tempColumn = rotatedGridModel[i].column;
+                rotatedGridModel[i].column = rotatedGridModel[i].row * -1;
+                rotatedGridModel[i].row = tempColumn * -1;
+            }
+        }
+        else if (rotation == 270) {
+            //column = row * -1, row = column
+            for (let i = 0; i != rotatedGridModel.length; i += 1) {
+                const tempColumn = rotatedGridModel[i].column;
+                rotatedGridModel[i].column = rotatedGridModel[i].row * -1;
+                rotatedGridModel[i].row = tempColumn;
+            }
+        }
+        
         //go to that position in the grid, then go through the block.gridModel, and place blocks down
-        for (let vector of block.gridModel) {
+        for (let vector of rotatedGridModel) {
             const layerPos = position.layer + vector.layer;
             const rowPos = position.row + vector.row;
             const columnPos = position.column + vector.column;
@@ -74,9 +117,10 @@ class LegoGrid {
         }
 
         //we need to animate it to it's position from [column][numOfLayers - 1][row] -> [column][layer][row]
-        const blockPosition = this.generateXYZ( position.column, position.layer, position.row );
-
+        const blockPosition = this.generateXYZ( position.column, position.layer, position.row, rotation );
         block.blockModel.position = { x: blockPosition.x, y: this.numOfLayers * Block.cellHeight, z: blockPosition.z };
+        block.blockModel.rotation.y = rotation;
+        block.blockModel.updateQuaternion();
         this.blockModels.push( block.blockModel );
 
         const blockIndex = this.blockModels.length - 1;

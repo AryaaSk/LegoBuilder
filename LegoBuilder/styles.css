@@ -29,3 +29,11 @@ body {
     width: 30px;
     margin-bottom: 10px;
 }
+
+#rotateBlock {
+    cursor: pointer;
+    color: rgb(3, 3, 211);
+}
+#rotateBlock:hover {
+    text-decoration: underline;
+}
