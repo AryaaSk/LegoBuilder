@@ -132,9 +132,6 @@ const deleteBlock = (x: number, y: number) => {
     //now just get the block's id, and run the remove() function
     const blockID = renderedBlocks[closestBlockIndex].object.name!;
     blocks[blockID].removeBlock(grid);
-
-    console.log(blocks)
-    console.log(grid);
 }
 
 let [x, y] = [0, 0];
