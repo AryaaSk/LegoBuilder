@@ -70,25 +70,10 @@ class BlockIndicator {
             return;
         }
         //need to convert to xyz
-        const XYZPosition = { x: 0, y: 0, z: 0 };
-        XYZPosition.x = (this.position.column - grid.numOfColumns / 2) * Block.cellSize;
-        XYZPosition.y = (this.position.layer) * (Block.cellHeight);
-        XYZPosition.z = (this.position.row - grid.numOfRows / 2) * Block.cellSize;
+        const XYZPosition = generateXYZ({ column: this.position.column, layer: this.position.layer, row: this.position.row }, rotation, grid.numOfColumns, grid.numOfRows);
         this.blockModel.position = XYZPosition;
         this.blockModel.rotation.y = rotation;
         this.blockModel.updateQuaternion();
-        //also need to attach it to a different corner depending on which way it is rotated
-        if (rotation == 0) { } //bottom left, do nothing
-        else if (rotation == 90) { //top left
-            XYZPosition.z += Block.cellSize;
-        }
-        else if (rotation == 180) { //top right
-            XYZPosition.x += Block.cellSize;
-            XYZPosition.z += Block.cellSize;
-        }
-        else if (rotation == 270) { //bottom right
-            XYZPosition.x += Block.cellSize;
-        }
     }
 }
 BlockIndicator.generateBlockIndicatorModel = (model) => {
@@ -99,16 +84,20 @@ BlockIndicator.generateBlockIndicatorModel = (model) => {
             blockIndicatorModel.pointMatrix.setValue(i, 1, blockIndicatorModel.pointMatrix.getColumn(i)[1] * 0.267);
         }
     }
-    */
     blockIndicatorModel.updateMatrices();
+    */
     return blockIndicatorModel;
 };
 class Block {
-    constructor() {
+    constructor(generateID) {
         this.blockName = "";
         this.position = undefined;
         this.gridModel = []; //a list of vectors from the original point, where the block will fill up
         this.blockModel = new Shape(); //when creating the model, make sure it extends into the x - z direction, do not center it on any axis, and also make each cell 100 * 100, and 150 wide, then we can scale
+        if (generateID == false) {
+            this.id = "-1";
+            return;
+        } //used when initializing an available block
         this.id = Block.generateID();
         blocks[this.id] = this;
     }
@@ -147,8 +136,7 @@ class Block {
         grid.cleanGrid();
     }
     clone() {
-        const newBlock = new Block();
-        newBlock.id = Block.generateID();
+        const newBlock = new Block(); //don't need to generate new id since it is already generated in constructor
         newBlock.blockName = this.blockName;
         newBlock.position = undefined;
         newBlock.gridModel = JSON.parse(JSON.stringify(this.gridModel));
@@ -172,7 +160,7 @@ Block.cellHeight = 150;
 //Actual blocks
 class SingleBlock extends Block {
     constructor() {
-        super();
+        super(false);
         this.gridModel = [{ column: 0, layer: 0, row: 0 }];
         this.blockModel = new SingleBlockModel();
         this.blockName = "Single Block";
@@ -182,7 +170,7 @@ class SingleBlock extends Block {
 availableBlocks.push(new SingleBlock());
 class DoubleBlock extends Block {
     constructor() {
-        super();
+        super(false);
         this.gridModel = [{ column: 0, layer: 0, row: 0 }, { column: 1, layer: 0, row: 0 }];
         this.blockModel = new DoubleBlockModel();
         this.blockName = "Double Block";
@@ -192,7 +180,7 @@ class DoubleBlock extends Block {
 availableBlocks.push(new DoubleBlock());
 class SidewayStairBlock extends Block {
     constructor() {
-        super();
+        super(false);
         this.gridModel = [{ column: 0, layer: 0, row: 0 }, { column: 1, layer: 0, row: 0 }, { column: 0, layer: 0, row: 1 }];
         this.blockModel = new SidewayStairModel();
         this.blockName = "Sideways Stair Block";

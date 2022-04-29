@@ -1,3 +1,24 @@
+const generateXYZ = ( position: { column: number, layer: number, row: number }, rotation: 0 | 90 | 180 | 270, numOfColumns: number, numOfRows: number ) => {
+    const returnXYZ = { x: 0, y: 0, z: 0 };
+    returnXYZ.x = (position.column - numOfColumns / 2) * Block.cellSize;
+    returnXYZ.y = (position.layer) * (Block.cellHeight);
+    returnXYZ.z = (position.row - numOfRows / 2) * Block.cellSize;    
+
+    //need to attach it to a different corner depending on which way it is rotated
+    if (rotation == 0) { } //bottom left, do nothing
+    else if (rotation == 90) { //top left
+        returnXYZ.z += Block.cellSize;
+    }
+    else if (rotation == 180) { //top right
+        returnXYZ.x += Block.cellSize;
+        returnXYZ.z += Block.cellSize;
+    }
+    else if (rotation == 270) { //bottom right
+        returnXYZ.x += Block.cellSize;
+    }
+    return returnXYZ;
+}
+
 class LegoGrid {
 
     data: string[][][] = [];
@@ -51,28 +72,6 @@ class LegoGrid {
         }
     }
 
-    generateXYZ(column: number, layer: number, row: number, rotation: 0 | 90 | 180 | 270) {
-        const returnXYZ = { x: 0, y: 0, z: 0 };
-        returnXYZ.x = (column - this.numOfColumns / 2) * Block.cellSize;
-        returnXYZ.y = (layer) * (Block.cellHeight);
-        returnXYZ.z = (row - this.numOfRows / 2) * Block.cellSize;    
-
-        //need to attach it to a different corner depending on which way it is rotated
-        if (rotation == 0) { } //bottom left, do nothing
-        else if (rotation == 90) { //top left
-            returnXYZ.z += Block.cellSize;
-        }
-        else if (rotation == 180) { //top right
-            returnXYZ.x += Block.cellSize;
-            returnXYZ.z += Block.cellSize;
-        }
-        else if (rotation == 270) { //bottom right
-            console.log("triggering")
-            returnXYZ.x += Block.cellSize;
-        }
-        return returnXYZ;
-    }
-
     blockModels: Shape[] = [];
     placeBlock = (block: Block , position: { column: number, layer: number, row: number }, rotation: 0 | 90 | 180 | 270, speed: number) => {
         if (block.position != undefined) { console.error("Cannot replace block, once you have placed it must be removed and recreated"); return; }
@@ -117,8 +116,11 @@ class LegoGrid {
         }
 
         //we need to animate it to it's position from [column][numOfLayers - 1][row] -> [column][layer][row]
-        const blockPosition = this.generateXYZ( position.column, position.layer, position.row, rotation );
-        block.blockModel.position = { x: blockPosition.x, y: this.numOfLayers * Block.cellHeight, z: blockPosition.z };
+        const blockPosition = generateXYZ( { column: position.column, layer: position.layer, row: position.row }, rotation, this.numOfColumns, this.numOfRows );
+        block.blockModel.position = JSON.parse(JSON.stringify(blockPosition));
+        block.blockModel.position.y = this.numOfLayers * Block.cellHeight; //start falling from top of world
+
+        //block.blockModel.position = { x: blockPosition.x, y: this.numOfLayers * Block.cellHeight, z: blockPosition.z };
         block.blockModel.rotation.y = rotation;
         block.blockModel.updateQuaternion();
         this.blockModels.push( block.blockModel );
