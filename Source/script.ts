@@ -53,7 +53,7 @@ setInterval(() => {
 
     camera.render(grid.blockModels.concat([blockIndicator.blockModel]));
 
-    plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is
+    //plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is, to prove that the Macos Chrome Mouse API is buggy
 }, 16);
 
 
