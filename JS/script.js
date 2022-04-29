@@ -31,7 +31,7 @@ const [gridLinesStart, gridLinesEnd] = grid.generateGridLines(legoBoard); //crea
 let boardPoints = new matrix();
 setInterval(() => {
     clearCanvas();
-    boardPoints = camera.render([legoBoard])[0].screenPoints.scaledUp(1 / dpi);
+    boardPoints = camera.render([legoBoard])[0].screenPoints;
     const [gridLinesStartTransformed, gridLinesEndTransformed] = [camera.transformMatrix(gridLinesStart, { x: 0, y: 0, z: 0 }), camera.transformMatrix(gridLinesEnd, { x: 0, y: 0, z: 0 })];
     for (let i = 0; i != gridLinesStartTransformed.width; i += 1) {
         drawLine(gridLinesStartTransformed.getColumn(i), gridLinesEndTransformed.getColumn(i), "black");
@@ -121,6 +121,8 @@ let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
     //Chrome's Mouse position API is buggy, watch the green dot, it doesn't follow the cursor
     [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
+    x /= dpi; //scale to match device's dpi
+    y /= dpi;
     updateBlockIndicatorPosition(x, y);
 };
 document.getElementById("renderingWindow").onclick = () => {
