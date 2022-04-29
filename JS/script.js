@@ -87,8 +87,8 @@ const placeBlockAtIndicator = () => {
     try {
         grid.placeBlock(newBlock, blockIndicator.position, currentRotation, 50);
     }
-    catch (_a) {
-        console.log("Out of bounds");
+    catch (error) {
+        console.error(error);
     }
 };
 const deleteBlock = (x, y) => {
@@ -116,6 +116,8 @@ const deleteBlock = (x, y) => {
     //now just get the block's id, and run the remove() function
     const blockID = renderedBlocks[closestBlockIndex].object.name;
     blocks[blockID].removeBlock(grid);
+    console.log(blocks);
+    console.log(grid);
 };
 let [x, y] = [0, 0];
 document.onmousemove = ($e) => {

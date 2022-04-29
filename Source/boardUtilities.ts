@@ -93,11 +93,10 @@ class LegoGrid {
             }
         }
         else if (rotation == 180) {
-            //column = row * -1, row = column * -1
+            //column = column * -1, row = row * -1
             for (let i = 0; i != rotatedGridModel.length; i += 1) {
-                const tempColumn = rotatedGridModel[i].column;
-                rotatedGridModel[i].column = rotatedGridModel[i].row * -1;
-                rotatedGridModel[i].row = tempColumn * -1;
+                rotatedGridModel[i].column = rotatedGridModel[i].column * -1;
+                rotatedGridModel[i].row = rotatedGridModel[i].row * -1;
             }
         }
         else if (rotation == 270) {
@@ -109,6 +108,28 @@ class LegoGrid {
             }
         }
         
+        for (let i = 0; i != rotatedGridModel.length; i += 1) {
+            if (rotatedGridModel[i].column == -0) { rotatedGridModel[i].column = 0 }
+            if (rotatedGridModel[i].row == -0) { rotatedGridModel[i].row = 0 }
+        }
+        
+        //before actually placing anything, check if the new block will intersect with any existing blocks, or if it is out of bounds (the grid), if so then cancel the process
+        for (let vector of rotatedGridModel) {
+            const layerPos = position.layer + vector.layer;
+            const rowPos = position.row + vector.row;
+            const columnPos = position.column + vector.column;
+    
+            try {
+                if (this.data[layerPos][rowPos][columnPos] == undefined) { throw("Triggering try-catch"); } //just accessing it to trigger the try-catch
+            }
+            catch {
+                throw("CANNOT PLACE BLOCK: Out of bounds");
+            }
+            if (this.data[layerPos][rowPos][columnPos] != "-1") {
+                throw("CANNOT PLACE BLOCK: Intersecting with another block");
+            }
+        }
+
         //go to that position in the grid, then go through the block.gridModel, and place blocks down
         for (let vector of rotatedGridModel) {
             const layerPos = position.layer + vector.layer;
@@ -138,19 +159,19 @@ class LegoGrid {
 
             if (counter >= repeat - 1) {  clearInterval(interval); }
             counter += 1;
-        }, 1)
+        }, 1);
     }
 
     private getClickableSurfaces() {
         //first find all clickable surfaces, which is just the tops of any blocks, or the board. Go through each column + row in the board, and keep going down until you hit something
         const clickableSurfaces: { column: number, layer: number, row: number}[] = [];
-        const startAtLayer = this.numOfLayers - 1;
+        const topLayer = this.numOfLayers - 1;
 
-        for (let row = 0; row != this.data[startAtLayer].length; row += 1) {
-            for (let column = 0; column != this.data[startAtLayer][row].length; column += 1) {
+        for (let row = 0; row != this.data[topLayer].length; row += 1) {
+            for (let column = 0; column != this.data[topLayer][row].length; column += 1) {
 
                 //repeat until you hit something or you hit the board
-                let i = startAtLayer;
+                let i = topLayer;
                 while ( i != -1) {
                     if (this.data[i][row][column] != "-1") {  break;  }
                     i -= 1;

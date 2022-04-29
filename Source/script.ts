@@ -104,7 +104,7 @@ const placeBlockAtIndicator = () => { //Just place block where the block indicat
     setColour(newBlock.blockModel, availableColours[currentBlockColourIndex]); //can change the colour of the blocks here
 
     try { grid.placeBlock(newBlock, blockIndicator.position, currentRotation, 50); }
-    catch { console.log("Out of bounds") }
+    catch (error) { console.error(error) }
 }
 
 const deleteBlock = (x: number, y: number) => {
@@ -132,6 +132,9 @@ const deleteBlock = (x: number, y: number) => {
     //now just get the block's id, and run the remove() function
     const blockID = renderedBlocks[closestBlockIndex].object.name!;
     blocks[blockID].removeBlock(grid);
+
+    console.log(blocks)
+    console.log(grid);
 }
 
 let [x, y] = [0, 0];
@@ -145,6 +148,11 @@ document.getElementById("renderingWindow")!.onclick = () => {
     placeBlockAtIndicator();
     updateBlockIndicatorPosition( x, y ); //to prevent user from clicking the same point
 }
+
+
+
+
+
 
 //BLOCK SELECTION
 const initializeSelection = () => {
