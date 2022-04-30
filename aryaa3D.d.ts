@@ -40,7 +40,7 @@ const drawLine = (p1: number[], p2: number[], colour: string) => {
     if (c == undefined) { console.error("Cannot draw, canvas is not linked, please use the linkCanvas(canvasID) before rendering any shapes"); return; }
     //points will be in format: [x, y]
     //I need to convert the javascript x and y into actual grid x and y
-    c.fillStyle = colour;
+    c.strokeStyle = colour;
     c.beginPath()
     c.moveTo(gridX(p1[0] * dpi), gridY(p1[1] * dpi))
     c.lineTo(gridX(p2[0] * dpi), gridY(p2[1] * dpi));
@@ -375,6 +375,11 @@ class Shape
     hideOutline() {
         for (let i = 0; i != this.faces.length; i += 1) {
             this.faces[i].outline = false;
+        }
+    }
+    setColour = (colour: string) => {
+        for (let i = 0; i != this.faces.length; i += 1) {
+            this.faces[i].colour = colour;
         }
     }
 
@@ -713,9 +718,10 @@ class Camera {
         this.worldRotationMatrix = calculateRotationMatrix(rX, rY, rZ);
     }
 
-    renderGrid() {
+    renderGrid(colour?: boolean) {
         const gridLength = 50000 * this.zoom;
         const grid = new Grid(gridLength);
+        if (colour != true) { grid.setColour("#000000"); }
         this.render([grid]);
     }
 

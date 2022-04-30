@@ -27,7 +27,7 @@ You can then use these to find where the user clicks on the grid, by just checki
 ### Blocks
 The block models are created in the Shape Builder, and are very basic, literally just rectangular shapes. 
 
-A cell is a 1 * 1 * 1 area of a block, I have set the cellSize (width and depth) to 100, and the cellHeight to 150. You can see this as the Single Block (1 * 1 * 1) has the same dimensions. **When creating the block model in the Shape Builder, make sure to make each cell the same dimensions**
+A cell is a 1 * 1 * 1 area of a block, I have set the cellSize (width and depth) to 75, and the cellHeight to 100. You can see this as the Single Block (1 * 1 * 1) has the same dimensions. **When creating the block model in the Shape Builder, make sure to make each cell the same dimensions, and do not add a top face, since that will be dynamically generated**
 
 The block attachment is added dynamically when constructing the block model, it just uses the gridModel and adds a block attachment model on top of the basic block model. Here is the Block Attachment model:\
 ![Block Attachment](Previews/BlockAttachment.png?raw=true)

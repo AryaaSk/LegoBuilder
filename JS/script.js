@@ -16,7 +16,7 @@ const setupBoard = (grid) => {
     const legoBoard = new Box(grid.numOfColumns * Block.cellSize, grid.numOfLayers * Block.cellHeight, grid.numOfRows * Block.cellSize);
     legoBoard.name = "board";
     legoBoard.position.y += (grid.numOfLayers * Block.cellHeight) / 2;
-    setColour(legoBoard, "");
+    legoBoard.setColour("");
     legoBoard.faces[3].colour = "#dbdbdb";
     legoBoard.showOutline();
     return [legoBoard];
@@ -24,7 +24,7 @@ const setupBoard = (grid) => {
 //MAIN SETUP
 const [camera] = setupAryaa3D();
 const grid = new LegoGrid();
-grid.generateGrid(10, 40, 10); //width, height, depth (in blocks)
+grid.generateGrid(10, 40, 30); //width, height, depth (in blocks)
 const [legoBoard] = setupBoard(grid);
 const [gridLinesStart, gridLinesEnd] = grid.generateGridLines(legoBoard); //creating the virtual grid lines, between each block
 //ANIMATION LOOP
@@ -34,7 +34,7 @@ setInterval(() => {
     boardPoints = camera.render([legoBoard])[0].screenPoints;
     const [gridLinesStartTransformed, gridLinesEndTransformed] = [camera.transformMatrix(gridLinesStart, { x: 0, y: 0, z: 0 }), camera.transformMatrix(gridLinesEnd, { x: 0, y: 0, z: 0 })];
     for (let i = 0; i != gridLinesStartTransformed.width; i += 1) {
-        drawLine(gridLinesStartTransformed.getColumn(i), gridLinesEndTransformed.getColumn(i), "black");
+        drawLine(gridLinesStartTransformed.getColumn(i), gridLinesEndTransformed.getColumn(i), "#919191");
     }
     camera.render(grid.blockModels.concat([blockIndicator.blockModel]));
     //plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is, to prove that the Macos Chrome Mouse API is buggy
@@ -45,13 +45,13 @@ let currentBlockColourIndex = 0;
 let currentRotation = 0;
 const updateBlockIndicator = () => {
     if (currentBlockIndex == -1) { //block indicator is hidden
-        setColour(blockIndicator.blockModel, "");
+        blockIndicator.blockModel.setColour("");
         return;
     }
     blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
     blockIndicator.blockModel.name = "indicator";
     const indicatorColour = availableColours[currentBlockColourIndex] + "60"; //opacity value
-    setColour(blockIndicator.blockModel, indicatorColour);
+    blockIndicator.blockModel.setColour(indicatorColour);
 };
 const blockIndicator = new BlockIndicator();
 blockIndicator.blockModel.name = "indicator";
@@ -83,7 +83,7 @@ const placeBlockAtIndicator = () => {
         return;
     }
     const newBlock = availableBlocks[currentBlockIndex].clone();
-    setColour(newBlock.blockModel, availableColours[currentBlockColourIndex]); //can change the colour of the blocks here
+    newBlock.blockModel.setColour(availableColours[currentBlockColourIndex]);
     try {
         grid.placeBlock(newBlock, blockIndicator.position, currentRotation, 50);
     }

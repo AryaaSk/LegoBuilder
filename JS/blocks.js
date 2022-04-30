@@ -2,17 +2,12 @@
 const blocks = {}; //the blocks currently on the grid (with their own unique identifier)
 const availableBlocks = []; //the blocks which are available to place, to use one you just need to clone a block at a specified index
 const availableColours = ["#C91A09", "#F47B30", "#FED557", "#237841", "#0055BF", "#FC97AC", "#81007B"]; //red, orange, yellow, green, blue, pink, purple
-//Models - When creating blocks, make each cell 100 * 100 on width and depth, and 150 tall. Do not create a top face sicne that will be filled in by the BlockAttachment
-const setColour = (shape, colour) => {
-    for (let i = 0; i != shape.faces.length; i += 1) {
-        shape.faces[i].colour = colour;
-    }
-};
+//Models - When creating blocks, make each cell the same size as the cellSize (width and depth), and cellHeight found in the Block class. Do not create a top face sicne that will be filled in by the BlockAttachment
 class SingleBlockModel extends Shape {
     constructor() {
         super();
         this.pointMatrix = new matrix();
-        const points = [[0, 0, 0], [100, 0, 0], [100, 0, 100], [0, 0, 100], [0, 150, 0], [100, 150, 0], [100, 150, 100], [0, 150, 100]];
+        const points = [[0, 0, 0], [75, 0, 0], [75, 0, 75], [0, 0, 75], [0, 100, 0], [75, 100, 0], [75, 100, 75], [0, 100, 75]];
         for (let i = 0; i != points.length; i += 1) {
             this.pointMatrix.addColumn(points[i]);
         }
@@ -22,14 +17,14 @@ class SingleBlockModel extends Shape {
         this.updateMatrices();
     }
     setFaces() {
-        this.faces = [{ pointIndexes: [0, 1, 2, 3], colour: "#c4c4c4" }, { pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4" }, { pointIndexes: [1, 2, 6, 5], colour: "#c4c4c4" }, { pointIndexes: [0, 4, 7, 3], colour: "#c4c4c4" }, { pointIndexes: [2, 3, 7, 6], colour: "#c4c4c4" }];
+        this.faces = [{ pointIndexes: [0, 1, 2, 3], colour: "#c4c4c4", outline: true }, { pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4", outline: true }, { pointIndexes: [1, 2, 6, 5], colour: "#c4c4c4", outline: true }, { pointIndexes: [0, 4, 7, 3], colour: "#c4c4c4", outline: true }, { pointIndexes: [2, 3, 7, 6], colour: "#c4c4c4", outline: true }];
     }
 }
 class DoubleBlockModel extends Shape {
     constructor() {
         super();
         this.pointMatrix = new matrix();
-        const points = [[0, 0, 0], [200, 0, 0], [200, 0, 100], [0, 0, 100], [0, 150, 0], [200, 150, 0], [200, 150, 100], [0, 150, 100]];
+        const points = [[0, 0, 0], [150, 0, 0], [150, 0, 75], [0, 0, 75], [0, 100, 0], [150, 100, 0], [150, 100, 75], [0, 100, 75]];
         for (let i = 0; i != points.length; i += 1) {
             this.pointMatrix.addColumn(points[i]);
         }
@@ -39,14 +34,14 @@ class DoubleBlockModel extends Shape {
         this.updateMatrices();
     }
     setFaces() {
-        this.faces = [{ pointIndexes: [0, 1, 2, 3], colour: "#c4c4c4" }, { pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4" }, { pointIndexes: [1, 2, 6, 5], colour: "#c4c4c4" }, { pointIndexes: [0, 4, 7, 3], colour: "#c4c4c4" }, { pointIndexes: [2, 3, 7, 6], colour: "#c4c4c4" }];
+        this.faces = [{ pointIndexes: [0, 1, 2, 3], colour: "#c4c4c4", outline: true }, { pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4", outline: true }, { pointIndexes: [1, 2, 6, 5], colour: "#c4c4c4", outline: true }, { pointIndexes: [0, 4, 7, 3], colour: "#c4c4c4", outline: true }, { pointIndexes: [2, 3, 7, 6], colour: "#c4c4c4", outline: true }];
     }
 }
 class SidewayStairModel extends Shape {
     constructor() {
         super();
         this.pointMatrix = new matrix();
-        const points = [[0, 0, 0], [200, 0, 0], [200, 0, 100], [0, 0, 200], [0, 150, 0], [200, 150, 0], [200, 150, 100], [0, 150, 200], [100, 0, 100], [100, 150, 100], [100, 0, 200], [100, 150, 200]];
+        const points = [[0, 0, 0], [150, 0, 0], [150, 0, 75], [0, 0, 150], [0, 100, 0], [150, 100, 0], [150, 100, 75], [0, 100, 150], [75, 0, 75], [75, 100, 75], [75, 0, 150], [75, 100, 150]];
         for (let i = 0; i != points.length; i += 1) {
             this.pointMatrix.addColumn(points[i]);
         }
@@ -56,7 +51,7 @@ class SidewayStairModel extends Shape {
         this.updateMatrices();
     }
     setFaces() {
-        this.faces = [{ pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4" }, { pointIndexes: [5, 6, 2, 1], colour: "#c4c4c4" }, { pointIndexes: [6, 9, 8, 2], colour: "#c4c4c4" }, { pointIndexes: [9, 11, 10, 8], colour: "#c4c4c4" }, { pointIndexes: [11, 7, 3, 10], colour: "#c4c4c4" }, { pointIndexes: [7, 4, 0, 3], colour: "#c4c4c4" }, { pointIndexes: [1, 2, 8, 10, 3, 0], colour: "#c4c4c4" }];
+        this.faces = [{ pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4", outline: true }, { pointIndexes: [5, 6, 2, 1], colour: "#c4c4c4", outline: true }, { pointIndexes: [6, 9, 8, 2], colour: "#c4c4c4", outline: true }, { pointIndexes: [9, 11, 10, 8], colour: "#c4c4c4", outline: true }, { pointIndexes: [11, 7, 3, 10], colour: "#c4c4c4", outline: true }, { pointIndexes: [7, 4, 0, 3], colour: "#c4c4c4", outline: true }, { pointIndexes: [1, 2, 8, 10, 3, 0], colour: "#c4c4c4", outline: true }];
     }
 }
 class BlockIndicator {
@@ -107,7 +102,7 @@ class Block {
         //add the blockAttachment to the block shape, based on the gridModel, basically combining shapes here
         for (const cell of this.gridModel) {
             const blockAttachmentTranslation = Vector((Block.cellSize * cell.column) + (Block.cellSize / 2), (Block.cellHeight) * (cell.layer + 1), (Block.cellSize * cell.row) + (Block.cellSize / 2));
-            const points = [[-20, 0, -20], [20, 0, -20], [20, 0, 20], [-20, 0, 20], [-20, 20, -20], [20, 20, -20], [20, 20, 20], [-20, 20, 20], [-49.5, 0, -49.5], [49.5, 0, -49.5], [49.5, 0, 49.5], [-49.5, 0, 49.5]];
+            const points = [[-15, 0, -15], [15, 0, -15], [15, 0, 15], [-15, 0, 15], [-15, 20, -15], [15, 20, -15], [15, 20, 15], [-15, 20, 15], [-37.125, 0, -37.125], [37.125, 0, -37.125], [37.125, 0, 37.125], [-37.125, 0, 37.125]];
             const blockAttachmentFaces = [{ pointIndexes: [4, 5, 1, 0], colour: "#c4c4c4" }, { pointIndexes: [5, 6, 2, 1], colour: "#c4c4c4" }, { pointIndexes: [2, 3, 7, 6], colour: "#c4c4c4" }, { pointIndexes: [0, 3, 7, 4], colour: "#c4c4c4" }, { pointIndexes: [5, 6, 7, 4], colour: "#c4c4c4" }, { pointIndexes: [8, 0, 1, 9], colour: "#c4c4c4" }, { pointIndexes: [9, 1, 2, 10], colour: "#c4c4c4" }, { pointIndexes: [10, 2, 3, 11], colour: "#c4c4c4" }, { pointIndexes: [11, 3, 0, 8], colour: "#c4c4c4" }];
             blockAttachmentFaces[0].outline = true;
             blockAttachmentFaces[1].outline = true;
@@ -155,8 +150,10 @@ class Block {
         return String(newID);
     }
 }
-Block.cellSize = 100; //define the size of each cell here, then make the block models the same size
-Block.cellHeight = 150;
+//Actual lego brick has dimensions - cellSize: 7.2mm, cellHeight: 9.6mm
+//After increasing - cellSize: 75mm, cellHeight: 100mm
+Block.cellSize = 75; //define the size of each cell here, then make the block models the same size
+Block.cellHeight = 100;
 //Actual blocks
 class SingleBlock extends Block {
     constructor() {
