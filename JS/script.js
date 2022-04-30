@@ -24,7 +24,7 @@ const setupBoard = (grid) => {
 //MAIN SETUP
 const [camera] = setupAryaa3D();
 const grid = new LegoGrid();
-grid.generateGrid(10, 40, 30); //width, height, depth (in blocks)
+grid.generateGrid(20, 40, 20); //width, height, depth (in blocks)
 const [legoBoard] = setupBoard(grid);
 const [gridLinesStart, gridLinesEnd] = grid.generateGridLines(legoBoard); //creating the virtual grid lines, between each block
 //ANIMATION LOOP
@@ -142,12 +142,11 @@ const initializeSelection = () => {
         `;
     }
     blockSelectionInner.innerHTML += `<h2><u> Select Colour </u></h2>`;
+    blockSelectionInner.innerHTML += `<div id="colourSelectionContainer">  </div>`;
+    const colourSelectionContainer = document.getElementById("colourSelectionContainer");
     for (let i = 0; i != availableColours.length; i += 1) {
         const colour = availableColours[i];
-        blockSelectionInner.innerHTML += `
-        <input type="button" class="colourSelectionButton" style="background-color: ${colour}" id="selectColour${String(i)}"></input>
-        <br>
-        `;
+        colourSelectionContainer.innerHTML += `<input type="button" class="colourSelectionButton" style="background-color: ${colour}" id="selectColour${String(i)}"></input>`;
     }
     blockSelectionInner.innerHTML += `<h4> Press R to rotate the current block </h4>`;
     blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`;

@@ -1,7 +1,8 @@
 "use strict";
 const blocks = {}; //the blocks currently on the grid (with their own unique identifier)
 const availableBlocks = []; //the blocks which are available to place, to use one you just need to clone a block at a specified index
-const availableColours = ["#C91A09", "#F47B30", "#FED557", "#237841", "#0055BF", "#FC97AC", "#81007B"]; //red, orange, yellow, green, blue, pink, purple
+//red, orange, yellow, light green, dark blue, pink, purple, white, dark grey - used this website for colours: https://brickipedia.fandom.com/wiki/Colour_Palette
+const availableColours = ["#e02a29", "#ff6600", "#ffd67f", "#00CC00", "#0055BF", "#EE9DC3", "#2C1577", "#FFFFFF", "#171717"];
 //Models - When creating blocks, make each cell the same size as the cellSize (width and depth), and cellHeight found in the Block class. Do not create a top face sicne that will be filled in by the BlockAttachment
 class SingleBlockModel extends Shape {
     constructor() {

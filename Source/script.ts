@@ -28,7 +28,7 @@ const setupBoard = ( grid: LegoGrid ) => {
 //MAIN SETUP
 const [camera] = setupAryaa3D();
 const grid = new LegoGrid();
-grid.generateGrid(10, 40, 30); //width, height, depth (in blocks)
+grid.generateGrid(20, 40, 20); //width, height, depth (in blocks)
 
 const [legoBoard] = setupBoard( grid );
 
@@ -43,7 +43,7 @@ const [gridLinesStart, gridLinesEnd] = grid.generateGridLines( legoBoard ); //cr
 let boardPoints: matrix = new matrix();
 setInterval(() => {
     clearCanvas();
-    
+
     boardPoints = camera.render([legoBoard])[0].screenPoints;
 
     const [ gridLinesStartTransformed, gridLinesEndTransformed ] = [camera.transformMatrix(gridLinesStart, { x: 0, y: 0, z: 0 }), camera.transformMatrix(gridLinesEnd, { x: 0, y: 0, z: 0 })];
@@ -170,12 +170,11 @@ const initializeSelection = () => {
     }
 
     blockSelectionInner.innerHTML += `<h2><u> Select Colour </u></h2>`;
+    blockSelectionInner.innerHTML += `<div id="colourSelectionContainer">  </div>`
+    const colourSelectionContainer = document.getElementById("colourSelectionContainer")!;
     for (let i = 0; i != availableColours.length; i += 1) {
         const colour = availableColours[i];
-        blockSelectionInner.innerHTML += `
-        <input type="button" class="colourSelectionButton" style="background-color: ${colour}" id="selectColour${String(i)}"></input>
-        <br>
-        `;
+        colourSelectionContainer.innerHTML += `<input type="button" class="colourSelectionButton" style="background-color: ${colour}" id="selectColour${String(i)}"></input>`;
     }
 
     blockSelectionInner.innerHTML += `<h4> Press R to rotate the current block </h4>`;
