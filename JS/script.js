@@ -37,7 +37,6 @@ setInterval(() => {
         drawLine(gridLinesStartTransformed.getColumn(i), gridLinesEndTransformed.getColumn(i), "#919191");
     }
     camera.render(grid.blockModels.concat([blockIndicator.blockModel]));
-    //plotPoint([x, y], "lime"); //green dot represents where the browser thinks your mouse is, to prove that the Macos Chrome Mouse API is buggy
 }, 16);
 //BLOCKS
 let currentBlockIndex = 0; //index in availableBlocks
@@ -73,7 +72,6 @@ const deleteBlock = (x, y) => {
 };
 let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
-    //Chrome's Mouse position API is buggy, watch the green dot, it doesn't follow the cursor
     [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
     updateBlockIndicatorPosition(x, y);
 };
@@ -86,7 +84,9 @@ document.getElementById("renderingWindow").onclick = ($e) => {
 //BLOCK SELECTION
 const initializeSelection = () => {
     const blockSelectionInner = document.getElementById("blockSelectionInner");
-    blockSelectionInner.innerHTML = `<h2><u> Select Block </u></h2>`;
+    blockSelectionInner.innerHTML = ""; //clear html
+    blockSelectionInner.innerHTML += `<input type="button" id="toggleSelection" value="☰">`;
+    blockSelectionInner.innerHTML += `<h2><u> Select Block </u></h2>`;
     blockSelectionInner.innerHTML += `<input type="button" class="blockSelectionButton" value="None" id="selectNone"> <br>`;
     for (let i = 0; i != availableBlocks.length; i += 1) {
         const block = availableBlocks[i];
@@ -104,8 +104,14 @@ const initializeSelection = () => {
     }
     blockSelectionInner.innerHTML += `<h4> Press R to rotate the current block </h4>`;
     blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`;
+    setTimeout(() => {
+        openSelection();
+    }, 400);
 };
 const initalizeButtonListeners = () => {
+    document.getElementById("toggleSelection").onclick = () => {
+        toggleSelection();
+    };
     document.getElementById("selectNone").onclick = () => {
         currentBlockIndex = -1;
         updateBlockIndicator();
@@ -134,6 +140,27 @@ const initalizeButtonListeners = () => {
         }
     };
 };
-updateBlockIndicatorPosition(x, y);
+//Opening and Closing the Selection menu
+let selectionOpen = true;
+const toggleSelection = () => {
+    if (selectionOpen == true) {
+        closeSelection();
+        selectionOpen = false;
+    }
+    else {
+        openSelection();
+        selectionOpen = true;
+    }
+};
+const openSelection = () => {
+    document.getElementById("blockSelection").style.left = "25px";
+    document.getElementById("toggleSelection").style.fontSize = "medium";
+    document.getElementById("toggleSelection").value = "✕";
+};
+const closeSelection = () => {
+    document.getElementById("blockSelection").style.left = "calc(var(--blockSelectionWidth) * -1 - 2px)";
+    document.getElementById("toggleSelection").style.fontSize = "larger";
+    document.getElementById("toggleSelection").value = "☰";
+};
 initializeSelection();
 initalizeButtonListeners();
