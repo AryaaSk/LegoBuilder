@@ -74,6 +74,6 @@ body {
     cursor: pointer;
     color: rgb(0, 0, 255);
 }
-#rotateBlock:hover {
+#rotateBlock:active {
     text-decoration: underline;
 }

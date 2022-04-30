@@ -30,7 +30,13 @@ const setupBoard = (grid) => {
 //MAIN SETUP
 const [camera] = setupAryaa3D();
 const grid = new LegoGrid();
-grid.generateGrid(20, 40, 20); //width, height, depth (in blocks)
+if (isMobile == true) {
+    grid.generateGrid(10, 40, 10); //width, height, depth (in blocks), use smaller grid on mobile so user can click easily
+    camera.zoom *= 2;
+}
+else {
+    grid.generateGrid(20, 40, 20);
+}
 const [legoBoard] = setupBoard(grid);
 const [gridLinesStart, gridLinesEnd] = grid.generateGridLines(legoBoard); //creating the virtual grid lines, between each block
 //ANIMATION LOOP
@@ -113,6 +119,9 @@ const initializeSelection = () => {
         blockSelectionInner.innerHTML += `<h4> Press R to rotate the current block </h4>`;
         blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`;
     }
+    else {
+        blockSelectionInner.innerHTML += `<h2 id="rotateBlock"> Rotate Current Block </h2>`;
+    }
     setTimeout(() => {
         if (isMobile == false) {
             openSelection();
@@ -151,6 +160,11 @@ const initalizeButtonListeners = () => {
             deleteBlock(x, y);
         }
     };
+    if (isMobile == true) {
+        document.getElementById("rotateBlock").onclick = () => {
+            rotateIndicator();
+        };
+    }
 };
 //Opening and Closing the Selection menu
 const toggleSelection = () => {

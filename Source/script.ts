@@ -38,7 +38,13 @@ const setupBoard = ( grid: LegoGrid ) => {
 //MAIN SETUP
 const [camera] = setupAryaa3D();
 const grid = new LegoGrid();
-grid.generateGrid(20, 40, 20); //width, height, depth (in blocks)
+if (isMobile == true) { 
+    grid.generateGrid(10, 40, 10);  //width, height, depth (in blocks), use smaller grid on mobile so user can click easily
+    camera.zoom *= 2;
+} 
+else { 
+    grid.generateGrid(20, 40, 20); 
+}
 
 const [legoBoard] = setupBoard( grid );
 
@@ -153,6 +159,9 @@ const initializeSelection = () => {
 
         blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`   
     }
+    else {
+        blockSelectionInner.innerHTML += `<h2 id="rotateBlock"> Rotate Current Block </h2>`;
+    }
 
     setTimeout(() => { //create a small delay to make it feel more natural
         if (isMobile == false) {
@@ -191,6 +200,12 @@ const initalizeButtonListeners = () => {
         const key = $e.key.toLowerCase();
         if (key == "r") { rotateIndicator() }
         else if (key == "delete" || key == "backspace") { deleteBlock( x, y ); }
+    }
+
+    if (isMobile == true) {
+        document.getElementById("rotateBlock")!.onclick = () => {
+            rotateIndicator()
+        }
     }
 
 }
