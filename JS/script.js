@@ -121,11 +121,9 @@ let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
     //Chrome's Mouse position API is buggy, watch the green dot, it doesn't follow the cursor
     [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
-    x /= dpi; //scale to match device's dpi
-    y /= dpi;
     updateBlockIndicatorPosition(x, y);
 };
-document.getElementById("renderingWindow").onclick = () => {
+document.getElementById("renderingWindow").onclick = ($e) => {
     placeBlockAtIndicator();
     updateBlockIndicatorPosition(x, y); //to prevent user from clicking the same point
 };
