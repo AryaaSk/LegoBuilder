@@ -13,6 +13,11 @@ const setupAryaa3D = () => {
     if (cameraZoomHeight < cameraZoomWidth) {
         camera.zoom = cameraZoomHeight;
     }
+    //want to position board at bottom of screen so that user has a lot of space to work on
+    camera.absPosition.y = (canvasHeight * (1 / camera.zoom)) / 4 - 350; //positions board 350px from the bottom
+    if (camera.absPosition.y < 0) {
+        camera.absPosition.y = 0;
+    }
     camera.enableMovementControls("renderingWindow", true, true, true, true);
     return [camera];
 };
