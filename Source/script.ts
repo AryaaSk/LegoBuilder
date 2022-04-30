@@ -65,54 +65,16 @@ setInterval(() => {
 let currentBlockIndex = 0; //index in availableBlocks
 let currentBlockColourIndex = 0;
 let currentRotation: 0 | 90 | 180 | 270 = 0;
-const updateBlockIndicator = () => {
-    if (currentBlockIndex == -1) { //block indicator is hidden
-        blockIndicator.blockModel.setColour("");
-        return;
-    }
-    blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel( availableBlocks[currentBlockIndex].blockModel.clone() );
-    blockIndicator.blockModel.name = "indicator"
 
-    const indicatorColour = availableColours[currentBlockColourIndex] + "60"; //opacity value
-    blockIndicator.blockModel.setColour(indicatorColour);
-}
 const blockIndicator = new BlockIndicator();
 blockIndicator.blockModel.name = "indicator";
 updateBlockIndicator();
-
-//show preview of where block will be placed, onmousemove()
-const updateBlockIndicatorPosition = (x: number, y: number) => {
-    if (boardPoints.width == 0 || currentBlockIndex == -1) { return; }
-
-    const mousePosition = grid.getPositionClicked(boardPoints, [x, y] )
-    if (mousePosition == undefined) { blockIndicator.position = undefined; blockIndicator.blockModel.position.x = -1000000; return; };
-
-    blockIndicator.position = mousePosition;
-    blockIndicator.syncPosition(grid, currentRotation);
-}
-const rotateIndicator = () => {
-    currentRotation += 90;
-    if (currentRotation == 360) {
-        currentRotation = 0;
-    }
-    updateBlockIndicatorPosition( x, y );
-}
-const placeBlockAtIndicator = () => { //Just place block where the block indicator is
-    if (blockIndicator.position == undefined || currentBlockIndex == -1) { return; }
-
-    const newBlock = availableBlocks[currentBlockIndex].clone();
-    newBlock.blockModel.setColour(availableColours[currentBlockColourIndex]);
-
-    try { grid.placeBlock(newBlock, blockIndicator.position, currentRotation, 50); }
-    catch (error) { console.error(error) }
-}
 
 const deleteBlock = (x: number, y: number) => {
     const cursorPosition = [x, y];
     const renderedBlocks = camera.render(grid.blockModels.concat([blockIndicator.blockModel])); //don't want to assign a variable every frame for performance
 
-    //find block closest to (x, y) using center property (just ignore z position), ignore when name == "indicator"
-    for (let i = 0; i != renderedBlocks.length; i += 1) {
+    for (let i = 0; i != renderedBlocks.length; i += 1) { //find block closest to (x, y) using center property (just ignore z position), ignore when name == "indicator"
         if (renderedBlocks[i].object.name == "indicator") {
             renderedBlocks.splice(i, 1);
             break;
@@ -122,26 +84,27 @@ const deleteBlock = (x: number, y: number) => {
 
     let closestBlockIndex = 0;
     for (let i = 0; i != renderedBlocks.length; i += 1) {
-        if ( distanceBetween2D(renderedBlocks[i].center, cursorPosition) < distanceBetween2D(renderedBlocks[closestBlockIndex].center, cursorPosition) ) {
-            closestBlockIndex = i;
-        }
+        if ( distanceBetween2D(renderedBlocks[i].center, cursorPosition) < distanceBetween2D(renderedBlocks[closestBlockIndex].center, cursorPosition) ) 
+        { closestBlockIndex = i; }
     }
-
     if (distanceBetween2D(renderedBlocks[closestBlockIndex].center, cursorPosition) > Block.cellSize) { return; }
 
-    //now just get the block's id, and run the remove() function
-    const blockID = renderedBlocks[closestBlockIndex].object.name!;
+    const blockID = renderedBlocks[closestBlockIndex].object.name!; //now just get the block's id, and run the remove() function
     blocks[blockID].removeBlock(grid);
+    updateBlockIndicatorPosition( x, y );
 }
 
 let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
     //Chrome's Mouse position API is buggy, watch the green dot, it doesn't follow the cursor
-    [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY]
+    [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
     updateBlockIndicatorPosition( x, y );
 }
 
 document.getElementById("renderingWindow")!.onclick = ($e) => {
+    [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY]; //update position on click, for mobile devices which won't have an onmove() function
+    updateBlockIndicatorPosition( x, y );
+
     placeBlockAtIndicator();
     updateBlockIndicatorPosition( x, y ); //to prevent user from clicking the same point
 }
@@ -158,7 +121,6 @@ const initializeSelection = () => {
     blockSelectionInner.innerHTML = `<h2><u> Select Block </u></h2>`;
 
     blockSelectionInner.innerHTML += `<input type="button" class="blockSelectionButton" value="None" id="selectNone"> <br>`;
-
     for (let i = 0; i != availableBlocks.length; i += 1) {
         const block = availableBlocks[i];
         blockSelectionInner.innerHTML += `

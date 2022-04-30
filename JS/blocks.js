@@ -55,35 +55,6 @@ class SidewayStairModel extends Shape {
         this.faces = [{ pointIndexes: [0, 1, 5, 4], colour: "#c4c4c4", outline: true }, { pointIndexes: [5, 6, 2, 1], colour: "#c4c4c4", outline: true }, { pointIndexes: [6, 9, 8, 2], colour: "#c4c4c4", outline: true }, { pointIndexes: [9, 11, 10, 8], colour: "#c4c4c4", outline: true }, { pointIndexes: [11, 7, 3, 10], colour: "#c4c4c4", outline: true }, { pointIndexes: [7, 4, 0, 3], colour: "#c4c4c4", outline: true }, { pointIndexes: [1, 2, 8, 10, 3, 0], colour: "#c4c4c4", outline: true }];
     }
 }
-class BlockIndicator {
-    constructor() {
-        this.position = { column: 0, layer: 0, row: 0 };
-        this.blockModel = BlockIndicator.generateBlockIndicatorModel(new SingleBlockModel());
-    }
-    syncPosition(grid, rotation) {
-        if (this.position == undefined) {
-            console.error("Block position is undefined, cannont sync");
-            return;
-        }
-        //need to convert to xyz
-        const XYZPosition = generateXYZ({ column: this.position.column, layer: this.position.layer, row: this.position.row }, rotation, grid.numOfColumns, grid.numOfRows);
-        this.blockModel.position = XYZPosition;
-        this.blockModel.rotation.y = rotation;
-        this.blockModel.updateQuaternion();
-    }
-}
-BlockIndicator.generateBlockIndicatorModel = (model) => {
-    const blockIndicatorModel = model.clone();
-    /* //No need to make the block indicator shorter since it is already transparant
-    for (let i = 0; i != blockIndicatorModel.pointMatrix.width; i += 1) {
-        if (blockIndicatorModel.pointMatrix.getColumn(i)[1] >= Block.cellHeight) {
-            blockIndicatorModel.pointMatrix.setValue(i, 1, blockIndicatorModel.pointMatrix.getColumn(i)[1] * 0.267);
-        }
-    }
-    blockIndicatorModel.updateMatrices();
-    */
-    return blockIndicatorModel;
-};
 class Block {
     constructor(generateID) {
         this.blockName = "";
