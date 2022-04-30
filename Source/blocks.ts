@@ -62,6 +62,25 @@ class SidewayStairModel extends Shape {
         this.faces = [{pointIndexes:[0,1,5,4],colour:"#c4c4c4",outline:true},{pointIndexes:[5,6,2,1],colour:"#c4c4c4",outline:true},{pointIndexes:[6,9,8,2],colour:"#c4c4c4",outline:true},{pointIndexes:[9,11,10,8],colour:"#c4c4c4",outline:true},{pointIndexes:[11,7,3,10],colour:"#c4c4c4",outline:true},{pointIndexes:[7,4,0,3],colour:"#c4c4c4",outline:true},{pointIndexes:[1,2,8,10,3,0],colour:"#c4c4c4",outline:true}];
     }
 }
+class TwoByTwoBlockModel extends Shape {
+    constructor () {
+        super();
+
+        this.pointMatrix = new matrix();
+        const points = [[0,0,0],[150,0,0],[150,0,150],[0,0,150],[0,100,0],[150,100,0],[150,100,150],[0,100,150]];
+        for (let i = 0; i != points.length; i += 1)
+        { this.pointMatrix.addColumn(points[i]); }
+
+        const [centeringX, centeringY, centeringZ] = [0, 0, 0];
+        this.pointMatrix.translateMatrix(centeringX, centeringY, centeringZ);
+
+        this.setFaces();
+        this.updateMatrices();
+    }
+    setFaces() {
+        this.faces = [{pointIndexes:[0,1,2,3],colour:"#c4c4c4",outline:true},{pointIndexes:[0,1,5,4],colour:"#c4c4c4",outline:true},{pointIndexes:[1,2,6,5],colour:"#c4c4c4",outline:true},{pointIndexes:[0,4,7,3],colour:"#c4c4c4",outline:true},{pointIndexes:[2,3,7,6],colour:"#c4c4c4",outline:true}];
+    }
+}
 
 
 
@@ -185,3 +204,15 @@ class SidewayStairBlock extends Block {
     }
 }
 availableBlocks.push( new SidewayStairBlock() );
+
+class TwoByTwoBlock extends Block {
+    constructor () {
+        super(false);
+
+        this.gridModel = [ { column: 0, layer: 0, row: 0 }, { column: 1, layer: 0, row: 0 }, { column: 0, layer: 0, row: 1 }, { column: 1, layer: 0, row: 1 }];
+        this.blockModel = new TwoByTwoBlockModel();
+        this.blockName = "2 X 2 Block";
+        this.configureBlockModel();
+    }
+}
+availableBlocks.push( new TwoByTwoBlock() );
