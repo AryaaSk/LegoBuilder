@@ -6,7 +6,13 @@ const setupAryaa3D = () => {
     const camera = new Camera();
     camera.worldRotation = { x: -20, y: 20, z: 0 };
     camera.updateRotationMatrix();
-    camera.zoom = 0.5;
+    //zoom based on device height / width
+    const cameraZoomWidth = (window.innerWidth) / 2000;
+    const cameraZoomHeight = (window.innerHeight) / 1200;
+    camera.zoom = cameraZoomWidth; //set to lowest
+    if (cameraZoomHeight < cameraZoomWidth) {
+        camera.zoom = cameraZoomHeight;
+    }
     camera.enableMovementControls("renderingWindow", true, true, true, true);
     return [camera];
 };
@@ -72,16 +78,17 @@ const deleteBlock = (x, y) => {
 };
 let [x, y] = [0, 0];
 document.onmousemove = ($e) => {
-    [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY];
+    [x, y] = [$e.clientX - canvasWidth / 2, canvasHeight / 2 - $e.clientY];
     updateBlockIndicatorPosition(x, y);
 };
 document.getElementById("renderingWindow").onclick = ($e) => {
-    [x, y] = [$e.clientX - window.innerWidth / 2, window.innerHeight / 2 - $e.clientY]; //update position on click, for mobile devices which won't have an onmove() function
+    [x, y] = [$e.clientX - canvasWidth / 2, canvasHeight / 2 - $e.clientY]; //update position on click, for mobile devices which won't have an onmove() function
     updateBlockIndicatorPosition(x, y);
     placeBlockAtIndicator();
     updateBlockIndicatorPosition(x, y); //to prevent user from clicking the same point
 };
 //BLOCK SELECTION
+let selectionOpen = false;
 const initializeSelection = () => {
     const blockSelectionInner = document.getElementById("blockSelectionInner");
     blockSelectionInner.innerHTML = ""; //clear html
@@ -102,10 +109,15 @@ const initializeSelection = () => {
         const colour = availableColours[i];
         colourSelectionContainer.innerHTML += `<input type="button" class="colourSelectionButton" style="background-color: ${colour}" id="selectColour${String(i)}"></input>`;
     }
-    blockSelectionInner.innerHTML += `<h4> Press R to rotate the current block </h4>`;
-    blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`;
+    if (isMobile == false) {
+        blockSelectionInner.innerHTML += `<h4> Press R to rotate the current block </h4>`;
+        blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`;
+    }
     setTimeout(() => {
-        openSelection();
+        if (isMobile == false) {
+            openSelection();
+            selectionOpen = true;
+        }
     }, 400);
 };
 const initalizeButtonListeners = () => {
@@ -141,7 +153,6 @@ const initalizeButtonListeners = () => {
     };
 };
 //Opening and Closing the Selection menu
-let selectionOpen = true;
 const toggleSelection = () => {
     if (selectionOpen == true) {
         closeSelection();

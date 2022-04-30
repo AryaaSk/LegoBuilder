@@ -35,7 +35,7 @@ const updateBlockIndicator = () => {
     }
     blockIndicator.blockModel = BlockIndicator.generateBlockIndicatorModel(availableBlocks[currentBlockIndex].blockModel.clone());
     blockIndicator.blockModel.name = "indicator";
-    const indicatorColour = availableColours[currentBlockColourIndex] + "60"; //opacity value
+    const indicatorColour = (isMobile == false) ? availableColours[currentBlockColourIndex] + "60" : ""; //don't show indicator if user is on mobile
     blockIndicator.blockModel.setColour(indicatorColour);
 };
 //show preview of where block will be placed, onmousemove()
