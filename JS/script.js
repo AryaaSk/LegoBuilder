@@ -95,21 +95,28 @@ document.onmousemove = ($e) => {
 document.getElementById("renderingWindow").onclick = ($e) => {
     [x, y] = [$e.clientX - canvasWidth / 2, canvasHeight / 2 - $e.clientY]; //update position on click, for mobile devices which won't have an onmove() function
     updateBlockIndicatorPosition(x, y);
-    placeBlockAtIndicator();
-    updateBlockIndicatorPosition(x, y); //to prevent user from clicking the same point
+    if (deleteModeEnabled == false) {
+        placeBlockAtIndicator();
+        updateBlockIndicatorPosition(x, y); //to prevent user from clicking the same point
+    }
+    else {
+        deleteBlock(x, y);
+    }
 };
 //BLOCK SELECTION
 let selectionOpen = false;
+let deleteModeEnabled = false;
+let previousBlockIndex = 0; //when you enable delete mode, it selects the block index to -1
 const initializeSelection = () => {
     const blockSelectionInner = document.getElementById("blockSelectionInner");
     blockSelectionInner.innerHTML = ""; //clear html
-    blockSelectionInner.innerHTML += `<input type="button" id="toggleSelection" value="☰">`;
+    blockSelectionInner.innerHTML += `<input type="button" class="appButton" id="toggleSelection" value="☰">`;
     blockSelectionInner.innerHTML += `<h2><u> Select Block </u></h2>`;
-    blockSelectionInner.innerHTML += `<input type="button" class="blockSelectionButton" value="None" id="selectNone"> <br>`;
+    blockSelectionInner.innerHTML += `<input type="button" class="appButton blockSelectionButton" value="None" id="selectNone"> <br>`;
     for (let i = 0; i != availableBlocks.length; i += 1) {
         const block = availableBlocks[i];
         blockSelectionInner.innerHTML += `
-        <input type="button" class="blockSelectionButton" value="${block.blockName}" id="selectBlock${String(i)}">
+        <input type="button" class="appButton blockSelectionButton" value="${block.blockName}" id="selectBlock${String(i)}">
         <br>
         `;
     }
@@ -122,15 +129,15 @@ const initializeSelection = () => {
     }
     if (isMobile == false) {
         blockSelectionInner.innerHTML += `<h4> Press R to rotate the current block </h4>`;
-        blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`;
+        //blockSelectionInner.innerHTML += `<h4> Press DELETE or BACKSPACE while hovering on a block to delete it </h4>`  //don't want too much information on the page
     }
     else {
         blockSelectionInner.innerHTML += `<h2 id="rotateBlock"> Rotate Current Block </h2>`;
     }
+    disableDeleteMode();
     setTimeout(() => {
         if (isMobile == false) {
             openSelection();
-            selectionOpen = true;
         }
     }, 400);
 };
@@ -170,27 +177,59 @@ const initalizeButtonListeners = () => {
             rotateIndicator();
         };
     }
+    document.getElementById("toggleDeleteMode").onclick = () => {
+        toggleDeleteMode();
+    };
 };
 //Opening and Closing the Selection menu
 const toggleSelection = () => {
     if (selectionOpen == true) {
         closeSelection();
-        selectionOpen = false;
     }
     else {
         openSelection();
-        selectionOpen = true;
     }
 };
 const openSelection = () => {
     document.getElementById("blockSelection").style.left = "25px";
-    document.getElementById("toggleSelection").style.fontSize = "medium";
+    //document.getElementById("toggleSelection")!.style.fontSize = "medium";
     document.getElementById("toggleSelection").value = "✕";
+    selectionOpen = true;
 };
 const closeSelection = () => {
     document.getElementById("blockSelection").style.left = "calc(var(--blockSelectionWidth) * -1 - 2px)";
-    document.getElementById("toggleSelection").style.fontSize = "larger";
+    //document.getElementById("toggleSelection")!.style.fontSize = "larger";
     document.getElementById("toggleSelection").value = "☰";
+    selectionOpen = false;
+};
+//Toggling Delete Mode
+const toggleDeleteMode = () => {
+    if (deleteModeEnabled == true) {
+        disableDeleteMode();
+    }
+    else {
+        enableDeleteMode();
+    }
+};
+const disableDeleteMode = () => {
+    document.getElementById("toggleDeleteMode").value = "Delete Mode: Off";
+    document.getElementById("toggleDeleteMode").style.backgroundColor = "whitesmoke";
+    document.getElementById("toggleDeleteMode").style.color = "black";
+    document.getElementById("renderingWindow").style.cursor = "default";
+    currentBlockIndex = previousBlockIndex;
+    updateBlockIndicator();
+    updateBlockIndicatorPosition(x, y);
+    deleteModeEnabled = false;
+};
+const enableDeleteMode = () => {
+    document.getElementById("toggleDeleteMode").value = "Delete Mode: On";
+    document.getElementById("toggleDeleteMode").style.backgroundColor = "#e02a29";
+    document.getElementById("toggleDeleteMode").style.color = "white";
+    document.getElementById("renderingWindow").style.cursor = "crosshair";
+    previousBlockIndex = currentBlockIndex;
+    currentBlockIndex = -1;
+    updateBlockIndicator();
+    deleteModeEnabled = true;
 };
 initializeSelection();
 initalizeButtonListeners();

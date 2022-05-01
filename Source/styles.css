@@ -13,7 +13,35 @@ body {
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 
-    --blockSelectionWidth: 200px
+    --blockSelectionWidth: 200px;
+}
+.appButton  {
+    height: 40px;
+    padding: 0px;
+
+    /*IOS safari to prevent double tap zoom and center button text properly */
+    -webkit-appearance: initial;
+    padding-left: 0; 
+    padding-right: 0;
+    touch-action: manipulation;
+
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid black;
+    font-size: small;
+    color: black;
+
+    /* To prevent user from selecting the text */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+.appButton:active {
+    background-color: lightgrey;
 }
 
 #blockSelection {
@@ -24,7 +52,9 @@ body {
     left: calc(var(--blockSelectionWidth) * -1 - 2px); /* starts as closed by default */
     bottom: 25px;
 
+    z-index: 1;
     transition: 500ms;
+    border: 1px solid black;
 }
 
 #blockSelectionInner {
@@ -34,7 +64,6 @@ body {
 
     text-align: center;
     background-color: whitesmoke;
-    border: 1px solid black;
 }
 
 #toggleSelection {
@@ -42,16 +71,19 @@ body {
     width: 50px;
 
     position: absolute;
-    top: 0px;
-    right: -51px;
+    top: -1px;
+    right: -50px;
 
     border: 1px solid black;
+    border-radius: 0px 10px 10px 0px;
     background-color: whitesmoke;
     cursor: pointer;
-    font-size: larger;
+    font-size: 25px;
+    font-weight: 100;
 }
 
 .blockSelectionButton {
+    width: 80%;
     margin-bottom: 10px;
 }
 
@@ -76,4 +108,18 @@ body {
 }
 #rotateBlock:active {
     text-decoration: underline;
+}
+
+#toggleDeleteMode {
+    height: 50px;
+    width: clamp(150px, 40vw, 300px) !important;
+    position: fixed;
+    top: 25;
+    right: 25;
+    width: 20%;
+
+    background-color: whitesmoke;
+    font-size: medium;
+    font-weight: 600;
+    color: black;
 }
