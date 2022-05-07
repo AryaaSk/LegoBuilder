@@ -3,7 +3,7 @@
 //ARYAA3D SETUP
 const setupAryaa3D = () => {
     linkCanvas("renderingWindow");
-    const camera = new Camera();
+    const camera = new AbsoluteCamera();
     camera.worldRotation = { x: -20, y: 20, z: 0 };
     camera.updateRotationMatrix();
     //zoom based on device height / width
@@ -18,7 +18,7 @@ const setupAryaa3D = () => {
     if (camera.absPosition.y < 0) {
         camera.absPosition.y = 0;
     }
-    camera.enableMovementControls("renderingWindow", true, true, true, true);
+    camera.enableMovementControls("renderingWindow", { limitRotation: true });
     return [camera];
 };
 //LEGO SETUP
@@ -49,7 +49,7 @@ let boardPoints = new matrix();
 setInterval(() => {
     clearCanvas();
     boardPoints = camera.render([legoBoard])[0].screenPoints;
-    const [gridLinesStartTransformed, gridLinesEndTransformed] = [camera.transformMatrix(gridLinesStart, { x: 0, y: 0, z: 0 }), camera.transformMatrix(gridLinesEnd, { x: 0, y: 0, z: 0 })];
+    const [gridLinesStartTransformed, gridLinesEndTransformed] = [camera.transformPoints(gridLinesStart), camera.transformPoints(gridLinesEnd)];
     for (let i = 0; i != gridLinesStartTransformed.width; i += 1) {
         drawLine(gridLinesStartTransformed.getColumn(i), gridLinesEndTransformed.getColumn(i), "#919191");
     }
